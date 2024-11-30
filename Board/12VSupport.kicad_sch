@@ -5013,7 +5013,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Fuse:Fuseholder_Blade_Mini_Keystone_3568"
+		(property "Footprint" "spetry:Fuseholder_Blade"
 			(at 44.45 154.178 90)
 			(effects
 				(font
@@ -6281,7 +6281,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Fuse:Fuseholder_Blade_Mini_Keystone_3568"
+		(property "Footprint" "spetry:Fuseholder_Blade"
 			(at 54.61 122.682 90)
 			(effects
 				(font
