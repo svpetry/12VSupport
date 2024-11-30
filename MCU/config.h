@@ -4,7 +4,7 @@
 // 'C' source line config statements
 
 // CONFIG1H
-#pragma config OSC = HSPLL      // Oscillator Selection bits (HS oscillator, PLL enabled (Clock Frequency = 4 x FOSC1))
+#pragma config OSC = HS         // Oscillator Selection bits (HS oscillator (Clock Frequency = FOSC1))
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
 #pragma config IESO = OFF       // Internal/External Oscillator Switchover bit (Oscillator Switchover mode disabled)
 
