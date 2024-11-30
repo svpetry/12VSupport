@@ -27,3 +27,56 @@ fp-info-cache
 # Exported BOM files
 *.xml
 *.csv
+
+# MPLabX project files to ignore
+
+# Build directories
+/MCU/dist/
+/MCU/build/
+
+# MPLABX temporary files
+*.xcls
+*.rej
+*.swp
+*.orig
+*.log
+*.bak
+*.save
+
+# IDE-generated backup files
+*.d
+*.o
+*.elf
+*.hex
+*.p1
+*.p2
+*.map
+*.sdb
+*.as
+
+# User-specific configurations
+nbproject/private/
+nbproject/configurations.xml
+
+# Compiler-specific output
+*.lst
+*.sdb
+*.cof
+*.cod
+*.err
+*.sym
+*.obj
+*.p1
+*.p2
+*.pre
+
+# Any temporary files
+*.tmp
+*.temp
+
+# Exclude debug files
+.debug/
+
+# Ignore hidden system files
+.DS_Store
+Thumbs.db
