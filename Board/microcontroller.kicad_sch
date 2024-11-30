@@ -2528,8 +2528,8 @@
 		)
 		(uuid "26290685-abe5-415e-ae12-40f493982f3d")
 	)
-	(label "VPP_~{MCLR}"
-		(at 121.92 124.46 0)
+	(label "VPP"
+		(at 127 124.46 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
