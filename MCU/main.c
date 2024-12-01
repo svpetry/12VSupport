@@ -32,26 +32,71 @@
  * RB7: PGD
  */
 
-#include "config.h"
-#include "base.h"
-
 #include <xc.h>
+#include "config.h"
+#include "constants.h"
+#include "base.h"
+#include "eeprom.h"
+#include "sensors.h"
 
-#define INITIAL_FULL_CAP 38000
+// Calculate Timer1 initial value for 0.1-second overflow
+// Timer tick period = (Prescaler * 4) / Fosc = (8 * 4) / 10MHz = 3.2 µs
+// Counts needed for 0.1 s: 0.1 s / 3.2 µs = 31,250 counts
+// Initial value = 65,536 - 31,250 = 34,286
+#define TIMER_HI 0x85
+#define TIMER_LO 0xEE
 
 // capacity values
-unsigned int rem_cap; // remaining capacity in mAh
-unsigned int full_cap; // full capacity in mAh
+long rem_cap; // remaining capacity in uAh
+long full_cap; // full capacity in mAh
+int soc_level_count = 16;
+long soc_voltage_levels[16] = {
+    29200,
+    27600,
+    27040,
+    26800,
+    26640,
+    26400,
+    26240,
+    26080,
+    26000,
+    25840,
+    25600,
+    24400,
+    24000,
+    22400,
+    20320,
+    20000
+};
+int soc_permille_values[16] = {
+    1000,
+    995,
+    990,
+    800,
+    700,
+    600,
+    500,
+    400,
+    300,
+    200,
+    150,
+    95,
+    50,
+    5,
+    0
+};
 
-// sensor values
-long system_voltage; // system voltage in mV
-long batt_voltage; // battery voltage in mV
-int batt_temp; // battery temperature in 1/10 deg C
-long batt_current; // battery current in mA
-
-unsigned int GuessRemainingCap() {
-    
-}
+// program flow
+#define STATE_INITIAL 0
+#define STATE_READY 1
+#define STATE_SUPPLYING 2
+#define STATE_EMPTY 3
+#define STATE_CHARGING 4
+#define STATE_FULL 5
+unsigned char mainloop_enabled = 0;
+unsigned char state = STATE_INITIAL ;
+unsigned char cap_reset_empty = 0;
+unsigned char sec = 0;
 
 void Initialize() {
     // Configure ADC
@@ -59,52 +104,221 @@ void Initialize() {
     ADCON1 = 0x09;  // Configure AN0 to AN3 as analog inputs, others as digital
     ADCON2 = 0xA9;  // Right justified, 12 TAD, Fosc/8
 
+    // Set up Timer1 for 0.1-second overflows
+    T1CONbits.TMR1CS = 0;    // Clock source = internal (Fosc/4)
+    T1CONbits.T1CKPS = 0b11; // Prescaler = 1:8
+    T1CONbits.T1RD16 = 1;    // Enable 16-bit Read/Write
+    T1CONbits.TMR1ON = 1;    // Turn on Timer1
+
+    TMR1H = TIMER_HI; // High byte of 34,286
+    TMR1L = TIMER_LO; // Low byte of 34,286
+
+    // Enable Timer1 interrupt
+    PIR1bits.TMR1IF = 0;    // Clear Timer1 interrupt flag
+    PIE1bits.TMR1IE = 1;    // Enable Timer1 interrupt
+
+    // Enable global and peripheral interrupts
+    INTCONbits.PEIE = 1;    // Enable Peripheral Interrupts
+    INTCONbits.GIE = 1;     // Enable Global Interrupts
+
+}
+
+long GuessRemainingCap() {
+    long soc_pm = 0; // SOC in permille
+    
+    if (batt_current >= soc_voltage_levels[0]) {
+        soc_pm = soc_permille_values[0];
+    } else {
+        for (int i = 1; i < soc_level_count; i++) {
+            if (batt_voltage >= soc_voltage_levels[i]) {
+                soc_pm = 
+                    (batt_voltage - soc_voltage_levels[i]) 
+                    * (soc_permille_values[i - 1] - soc_permille_values[i]) 
+                    / (soc_voltage_levels[i - 1] - soc_voltage_levels[i]) 
+                    + soc_permille_values[i];
+                break;
+            }
+        }
+    }
+    return full_cap * soc_pm;
+}
+
+void CountRemainingCapacity() {
+    if (!sec) return;
+    
+    // this is executed every second
+    rem_cap -= batt_current * 1000 / 3600;
+    if (rem_cap < 0)
+        rem_cap = 0;
+}
+
+void SetSocLeds() {
+    unsigned char portb = 0;
+    int socPercent = (int)(rem_cap / (10 * full_cap));
+    if (socPercent > 0)
+        portb |= 0x01;
+    if (socPercent > 20)
+        portb |= 0x02;
+    if (socPercent > 40)
+        portb |= 0x04;
+    if (socPercent > 60)
+        portb |= 0x08;
+    if (socPercent > 80)
+        portb |= 0x10;
+    LATB = portb;
+}
+
+void MainLoop() {
+    if (!mainloop_enabled) return;
+    
     ReadSensors();
+    
+    if (state != STATE_INITIAL) {
+        CountRemainingCapacity();
+        SetSocLeds();
+    }
+    
+    switch (state) {
+        case STATE_INITIAL: {
+            LATC = 0;
+            LATB = 0;
+            full_cap = INITIAL_FULL_CAP;
+            rem_cap = GuessRemainingCap();
+            state = STATE_READY;
+            break;
+        }
+        
+        case STATE_READY: {
+            if (system_voltage < VOLTAGE_START_SUPPLY) {
+                LATCbits.LATC6 = 0; // red LED
+                state = STATE_SUPPLYING;
+            } else if (system_voltage > VOLTAGE_START_CHARGING) {
+                LATCbits.LATC6 = 0; // red LED
+                state = STATE_CHARGING;
+            } else if (batt_voltage <= BAT_VOLTAGE_EMPTY)
+                LATCbits.LATC6 = sec; // red LED
+            break;
+        }
 
-    // variables
-    full_cap = INITIAL_FULL_CAP;
-    rem_cap = GuessRemainingCap();
+        case STATE_SUPPLYING: {
+            unsigned char stop_supply = 0;
+            LATCbits.LATC7 = 1; // green LED
+            LATCbits.LATC2 = 1; // buck output relay
+
+            if (batt_voltage > VOLTAGE_START_CHARGING) {
+                stop_supply = 1;
+                state = STATE_CHARGING;
+            } else if (batt_current < BAT_CURRENT_THRESHOLD && batt_voltage < BAT_VOLTAGE_EMPTY) {
+                stop_supply = 1;
+                state = STATE_EMPTY;
+            }
+            
+            if (stop_supply) {
+                LATCbits.LATC7 = 0; // green LED
+                LATCbits.LATC2 = 0; // buck output relay
+            }
+            
+            break;
+        }
+
+        case STATE_EMPTY: {
+            if (!cap_reset_empty) {
+                full_cap -= rem_cap / 1000;
+                rem_cap = 0;
+                cap_reset_empty = 1;
+            }
+            LATCbits.LATC7 = sec; // green LED
+            if (batt_voltage > VOLTAGE_START_CHARGING) {
+                LATCbits.LATC7 = 0; // green LED
+                state = STATE_CHARGING;
+            }
+            break;
+        }
+
+        case STATE_CHARGING: {
+            if (batt_temp < HEATER_TEMP)
+                LATCbits.LATC3 = 1; // heater relay
+            else 
+                LATCbits.LATC3 = 0; // heater relay
+            
+            if (batt_temp >= CHARGING_MIN_TEMP) {
+                if (!PORTCbits.RC0) {
+                    LATCbits.LATC6 = 1; // red LED
+                    LATCbits.LATC1 = 1; // boost converter input relay
+                    __delay_ms(200);
+                    LATCbits.LATC0 = 1; // charging relay
+                }
+            } else {
+                LATCbits.LATC6 = sec; // red LED
+                LATCbits.LATC1 = 0; // boost converter input
+                LATCbits.LATC0 = 0; // charging relay
+            }
+
+            unsigned char stop_charge = 0;
+            if (system_voltage < VOLTAGE_STOP_CHARGING) {
+                stop_charge = 1;
+                state = STATE_READY;
+            } else if (batt_current < BAT_CURRENT_THRESHOLD && batt_voltage > BAT_VOLTAGE_FULL) {
+                stop_charge = 1;
+                state = STATE_FULL;
+            }
+            if (stop_charge)
+            {
+                LATCbits.LATC6 = 0; // red LED
+                LATCbits.LATC1 = 0; // boost converter input
+                LATCbits.LATC0 = 0; // charging relay
+                LATCbits.LATC3 = 0; // heater relay
+            }
+            break;
+        }
+
+        case STATE_FULL: {
+            if (cap_reset_empty) {
+                cap_reset_empty = 0;
+                full_cap = rem_cap / 1000;
+            } else
+                rem_cap = full_cap * 1000;
+
+            if (system_voltage < VOLTAGE_STOP_CHARGING)
+                state = STATE_READY;
+            break;
+        }
+
+    }
 }
 
-unsigned int ADC_Read(unsigned char channel) {
-    if (channel > 13) return 0;  // Invalid channel check
-    
-    ADCON0 &= 0xC5;              // Clear channel selection bits
-    ADCON0 |= (channel << 2);    // Set the required channel
-    __delay_us(10);              // Acquisition time to charge hold capacitor
-    
-    ADCON0bits.GO = 1;           // Start A/D conversion
-    while (ADCON0bits.GO);       // Wait for conversion to complete
-    
-    return (unsigned int)((ADRESH << 8) + ADRESL);  // Return 10-bit result
-}
+// Interrupt Service Routine
+void __interrupt(high_priority) HighISR(void) {
+    // Check for Timer1 overflow interrupt
+    if (PIR1bits.TMR1IF) {
+        // Clear the Timer1 interrupt flag
+        PIR1bits.TMR1IF = 0;
 
-long ReadMillivolts(unsigned char channel) {
-    long value = ADC_Read(channel);
-    return value * 5 * 1000 / 1024;
-}
+        // Reload Timer1 register for next interrupt
+        TMR1H = TIMER_HI; // High byte of 34,286
+        TMR1L = TIMER_LO; // Low byte of 34,286
 
-void ReadSensors() {
-    // voltage is divided by 4
-    system_voltage = ReadMillivolts(0) * 4;
-    
-    // 10 mV/degC, 750 mV = 0 degC
-    batt_temp = (int)((ReadMillivolts(1) - 4 * 750) / 4);
-    
-    // voltage is divided by 10
-    batt_voltage = ReadMillivolts(2) * 10;
-    
-    // 100 mV/A
-    batt_current = ReadMillivolts(3) * 10;
+        // Increment overflow counter
+        static unsigned char overflow_count = 0;
+        overflow_count++;
+        if (overflow_count >= 5) {  // 0.1 s * 5 = 0.5 s
+            overflow_count = 0;
+            sec ^= 1;
+            MainLoop();  // Call your function every 0.5 seconds
+        }
+    }
 }
 
 void main(void) {
     
     Initialize();
-    
+    LATCbits.LATC6 = 1;
+    LATCbits.LATC7 = 1;
+
     __delay_ms(3000);
     
-    ReadSensors();
+    // enable main loop
+    mainloop_enabled = 1;
     
-    return;
+    while (1) ;
 }

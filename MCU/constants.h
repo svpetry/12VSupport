@@ -1,0 +1,22 @@
+/* 
+ * File:   constants.h
+ * Author: svpet
+ *
+ * Created on 1. Dezember 2024, 19:02
+ */
+
+#ifndef CONSTANTS_H
+#define	CONSTANTS_H
+
+#define INITIAL_FULL_CAP 38000
+#define VOLTAGE_START_CHARGING 135000
+#define VOLTAGE_STOP_CHARGING 132000
+#define VOLTAGE_START_SUPPLY 12700
+#define CHARGING_MIN_TEMP 40
+#define HEATER_TEMP 60
+#define BAT_VOLTAGE_EMPTY 20000
+#define BAT_VOLTAGE_FULL 28000
+#define BAT_CURRENT_THRESHOLD 50
+
+#endif	/* CONSTANTS_H */
+
