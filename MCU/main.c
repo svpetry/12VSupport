@@ -182,9 +182,15 @@ void MainLoop() {
         case STATE_INITIAL: {
             LATC = 0;
             LATB = 0;
-            full_cap = INITIAL_FULL_CAP;
-            rem_cap = GuessRemainingCap();
-            state = STATE_READY;
+            if (batt_voltage > BATT_MIN_VOLTAGE) {
+                full_cap = INITIAL_FULL_CAP;
+                rem_cap = GuessRemainingCap();
+                state = STATE_READY;
+            } else {
+                // no battery
+                LATCbits.LATC6 = sec; // red LED
+                LATCbits.LATC7 = 1 - sec; // green LED
+            }
             break;
         }
         
