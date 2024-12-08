@@ -4995,7 +4995,7 @@
 				)
 			)
 		)
-		(property "Value" "30A"
+		(property "Value" "40A"
 			(at 45.72 140.97 90)
 			(effects
 				(font
