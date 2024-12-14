@@ -4,6 +4,10 @@
 	(generator_version "8.0")
 	(uuid "7e710bc7-7b50-4ee0-9860-55cb0c1475bc")
 	(paper "A4")
+	(title_block
+		(date "2024-12-11")
+		(rev "1.1")
+	)
 	(lib_symbols
 		(symbol "64-ATX-rescue:R_POT_TRIM-Device"
 			(pin_names

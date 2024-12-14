@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(date "2024-12-11")
-		(rev "1.0")
+		(rev "1.1")
 	)
 	(lib_symbols
 		(symbol "Connector:Screw_Terminal_01x02"
@@ -3217,7 +3217,7 @@
 		(uuid "941ab2b7-031b-4236-b284-c97ca462d14b")
 	)
 	(no_connect
-		(at 194.31 133.35)
+		(at 194.31 128.27)
 		(uuid "9972e063-c1c6-4939-beeb-fa2a2a033d6c")
 	)
 	(wire
@@ -3349,16 +3349,6 @@
 			(type default)
 		)
 		(uuid "2d30cb09-ce32-4bd7-bfc9-cbc78c2eaf3a")
-	)
-	(wire
-		(pts
-			(xy 194.31 128.27) (xy 203.2 128.27)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2dfd38ad-ea95-4043-ab18-065b240ef5d8")
 	)
 	(wire
 		(pts
@@ -4082,16 +4072,6 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 128.27) (xy 203.2 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b2903356-438a-44e7-953d-4152ae7e0ce3")
-	)
-	(wire
-		(pts
 			(xy 60.96 73.66) (xy 60.96 86.36)
 		)
 		(stroke
@@ -4172,6 +4152,16 @@
 	)
 	(wire
 		(pts
+			(xy 203.2 86.36) (xy 203.2 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d98b40ec-d81b-458b-bec8-1842de8f422a")
+	)
+	(wire
+		(pts
 			(xy 101.6 143.51) (xy 96.52 143.51)
 		)
 		(stroke
@@ -4219,6 +4209,16 @@
 			(type default)
 		)
 		(uuid "e32c936e-8dca-455f-9769-92a834d09a05")
+	)
+	(wire
+		(pts
+			(xy 203.2 133.35) (xy 194.31 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3cd66d7-2881-4573-876e-f631c9a55463")
 	)
 	(wire
 		(pts
