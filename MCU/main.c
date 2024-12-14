@@ -51,41 +51,25 @@ long rem_cap; // remaining capacity in uAh
 long full_cap; // full capacity in mAh
 int soc = 0; // current calculated SOC
 
-int soc_level_count = 16;
-long soc_voltage_levels[16] = {
-    29200,
-    27600,
-    27040,
-    26800,
-    26640,
-    26400,
-    26240,
-    26080,
-    26000,
-    25840,
-    25600,
-    24400,
-    24000,
-    22400,
-    20320,
-    20000
-};
-int soc_permille_values[16] = {
-    1000,
-    995,
-    990,
-    800,
-    700,
-    600,
-    500,
-    400,
-    300,
-    200,
-    150,
-    95,
-    50,
-    5,
-    0
+typedef struct {
+    long voltage; // voltage in mV
+    int soc; // SOC in permille
+} VoltageSoc;
+
+int soc_level_count = 11;
+VoltageSoc voltage_soc[] = 
+{
+    {28800, 1000},
+    {28000, 900},
+    {27200, 800},
+    {26800, 700},
+    {26560, 600},
+    {26400, 500}, 
+    {26240, 400},
+    {26080, 300},
+    {25600, 200},
+    {24800, 100},
+    {20000, 0}
 };
 
 // program flow
@@ -101,6 +85,10 @@ unsigned char cap_reset_empty = 0;
 unsigned char sec = 0;
 
 void Initialize() {
+    // configure ports
+    TRISB = 0x00;
+    TRISC = 0x00;
+    
     // Configure ADC
     ADCON0 = 0x01;  // Enable ADC and select channel 0 (AN0)
     ADCON1 = 0x09;  // Configure AN0 to AN3 as analog inputs, others as digital
@@ -127,16 +115,16 @@ void Initialize() {
 long GuessRemainingCap() {
     long soc_pm = 0; // SOC in permille
     
-    if (batt_current >= soc_voltage_levels[0]) {
-        soc_pm = soc_permille_values[0];
+    if (batt_current >= voltage_soc[0].voltage) {
+        soc_pm = voltage_soc[0].soc;
     } else {
         for (int i = 1; i < soc_level_count; i++) {
-            if (batt_voltage >= soc_voltage_levels[i]) {
+            if (batt_voltage >= voltage_soc[i].voltage) {
                 soc_pm = 
-                    (batt_voltage - soc_voltage_levels[i]) 
-                    * (soc_permille_values[i - 1] - soc_permille_values[i]) 
-                    / (soc_voltage_levels[i - 1] - soc_voltage_levels[i]) 
-                    + soc_permille_values[i];
+                    (batt_voltage - voltage_soc[i].voltage) 
+                    * (voltage_soc[i - 1].soc - voltage_soc[i].soc) 
+                    / (voltage_soc[i - 1].voltage - voltage_soc[i].voltage) 
+                    + voltage_soc[i].soc;
                 break;
             }
         }
@@ -328,7 +316,7 @@ void __interrupt(high_priority) HighISR(void) {
         if (overflow_count >= 5) {  // 0.1 s * 5 = 0.5 s
             overflow_count = 0;
             sec ^= 1;
-            MainLoop();  // Call your function every 0.5 seconds
+            MainLoop();
         }
     }
 }

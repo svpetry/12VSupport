@@ -80,3 +80,4 @@ nbproject/configurations.xml
 # Ignore hidden system files
 .DS_Store
 Thumbs.db
+Board/~*.lck
