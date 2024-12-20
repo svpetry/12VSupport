@@ -2011,10 +2011,6 @@
 		(uuid "d0c5d0e4-7f90-471c-a842-d9462f7c27d2")
 	)
 	(no_connect
-		(at 107.95 80.01)
-		(uuid "efb033f1-678b-481e-9644-a46bb06a0fe3")
-	)
-	(no_connect
 		(at 168.91 105.41)
 		(uuid "f40f2098-c98a-4cf0-a458-5a35f2d4c849")
 	)
@@ -2440,6 +2436,16 @@
 	)
 	(wire
 		(pts
+			(xy 105.41 80.01) (xy 107.95 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9241efa8-5f59-4d7e-9a7e-a062398018c3")
+	)
+	(wire
+		(pts
 			(xy 247.65 125.73) (xy 247.65 123.19)
 		)
 		(stroke
@@ -2856,7 +2862,7 @@
 			)
 		)
 	)
-	(global_label "REL_BOOST_IN"
+	(global_label "EN_BOOST_IN"
 		(shape output)
 		(at 105.41 72.39 180)
 		(fields_autoplaced yes)
@@ -2868,7 +2874,7 @@
 		)
 		(uuid "6312a6a7-d6e8-45f7-b076-2c7e6f7b669a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 88.9991 72.39 0)
+			(at 89.9667 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2940,6 +2946,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "REL_BOOST_IN"
+		(shape output)
+		(at 105.41 80.01 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "be94826c-2d12-4804-a918-792bd6319d6f")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 88.9991 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)

@@ -87,7 +87,7 @@ unsigned char sec = 0;
 void Initialize() {
     // configure ports
     TRISB = 0x00;
-    TRISC = 0x00;
+    TRISC = 0b00000100;
     
     // Configure ADC
     ADCON0 = 0x01;  // Enable ADC and select channel 0 (AN0)
@@ -174,7 +174,7 @@ void SetFullCap(long value) {
 
 void MainLoop() {
     if (!mainloop_enabled) return;
-    
+
     ReadSensors();
     
     if (state != STATE_INITIAL) {
@@ -214,7 +214,7 @@ void MainLoop() {
         case STATE_SUPPLYING: {
             unsigned char stop_supply = 0;
             LATCbits.LATC7 = 1; // green LED
-            LATCbits.LATC2 = 1; // buck output relay
+            LATCbits.LATC2 = 0; // buck output relay
 
             if (batt_voltage > VOLTAGE_CHARGE_IF_NEEDED) {
                 stop_supply = 1;
@@ -226,7 +226,7 @@ void MainLoop() {
             
             if (stop_supply) {
                 LATCbits.LATC7 = 0; // green LED
-                LATCbits.LATC2 = 0; // buck output relay
+                LATCbits.LATC2 = 1; // buck output relay
             }
             
             break;
