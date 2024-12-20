@@ -87,12 +87,14 @@ unsigned char sec = 0;
 void Initialize() {
     // configure ports
     TRISB = 0x00;
+    LATB = 0;
     TRISC = 0x00;
+    LATC = 0;
     
     // Configure ADC
-    ADCON0 = 0x01;  // Enable ADC and select channel 0 (AN0)
-    ADCON1 = 0x09;  // Configure AN0 to AN3 as analog inputs, others as digital
-    ADCON2 = 0xA9;  // Right justified, 12 TAD, Fosc/8
+    ADCON0 = 0b00000001; // Enable ADC and select channel 0 (AN0)
+    ADCON1 = 0b00001011; // Configure AN0 to AN3 as analog inputs, others as digital
+    ADCON2 = 0b10101001; // Right justified, 12 TAD, Fosc/8
 
     // Set up Timer1 for 0.1-second overflows
     T1CONbits.TMR1CS = 0;    // Clock source = internal (Fosc/4)
