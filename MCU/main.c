@@ -175,8 +175,6 @@ void SetFullCap(long value) {
 }
 
 void MainLoop() {
-    if (!mainloop_enabled) return;
-    
     ReadSensors();
     
     if (state != STATE_INITIAL) {
@@ -318,7 +316,8 @@ void __interrupt(high_priority) HighISR(void) {
         if (overflow_count >= 5) {  // 0.1 s * 5 = 0.5 s
             overflow_count = 0;
             sec ^= 1;
-            MainLoop();
+            if (mainloop_enabled)
+                MainLoop();
         }
     }
 }
@@ -326,10 +325,12 @@ void __interrupt(high_priority) HighISR(void) {
 void main(void) {
     
     Initialize();
+    
     LATCbits.LATC6 = 1;
     LATCbits.LATC7 = 1;
-
-    __delay_ms(3000);
+    __delay_ms(1000);
+    LATCbits.LATC6 = 0;
+    LATCbits.LATC7 = 0;
     
     // enable main loop
     mainloop_enabled = 1;
