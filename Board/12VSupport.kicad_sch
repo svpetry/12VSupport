@@ -4881,7 +4881,7 @@
 			)
 		)
 	)
-	(global_label "BAT_CURR"
+	(global_label "CURR_SENSE"
 		(shape output)
 		(at 71.12 96.52 0)
 		(fields_autoplaced yes)
@@ -4893,7 +4893,7 @@
 		)
 		(uuid "3d8b697e-849d-4faa-8588-b490574d45e7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 83.5395 96.52 0)
+			(at 86.2608 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
