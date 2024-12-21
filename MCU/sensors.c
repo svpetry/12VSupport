@@ -30,8 +30,8 @@ void ReadSensors() {
     // voltage is divided by 4
     system_voltage = ReadMillivolts(0) * 4;
     
-    // 10 mV/degC, 750 mV = 0 degC
-    batt_temp = (int)((ReadMillivolts(1) - 4 * 750) / 4);
+    // 10 mV/degC, 500 mV = 0 degC, multiplied with 4
+    batt_temp = (int)((ReadMillivolts(1) - 4 * 500) / 4);
     
     // voltage is divided by 10
     batt_voltage = ReadMillivolts(2) * 10;
