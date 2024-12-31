@@ -11,7 +11,7 @@ long batt_current; // battery current in mA
 unsigned int ADC_Read(unsigned char channel) {
     if (channel > 13) return 0;  // Invalid channel check
     
-    ADCON0 &= 0xC5;              // Clear channel selection bits
+    ADCON0 &= 0b11000001;        // Clear channel selection bits
     ADCON0 |= (channel << 2);    // Set the required channel
     __delay_us(10);              // Acquisition time to charge hold capacitor
     
@@ -23,15 +23,15 @@ unsigned int ADC_Read(unsigned char channel) {
 
 long ReadMillivolts(unsigned char channel) {
     long value = ADC_Read(channel);
-    return value * 5 * 1000 / 1024;
+    return (value * 5 * 1000) / 1024;
 }
 
 void ReadSensors() {
     // voltage is divided by 4
     system_voltage = ReadMillivolts(0) * 4;
     
-    // 10 mV/degC, 750 mV = 0 degC
-    batt_temp = (int)((ReadMillivolts(1) - 4 * 750) / 4);
+    // 10 mV/degC, 500 mV = 0 degC, multiplied with 4
+    batt_temp = (int)((ReadMillivolts(1) - 4 * 500) / 4);
     
     // voltage is divided by 10
     batt_voltage = ReadMillivolts(2) * 10;

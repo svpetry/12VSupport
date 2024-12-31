@@ -87,12 +87,14 @@ unsigned char sec = 0;
 void Initialize() {
     // configure ports
     TRISB = 0x00;
-    TRISC = 0b00000100;
+    LATB = 0;
+    TRISC = 0x00;
+    LATC = 0;
     
     // Configure ADC
-    ADCON0 = 0x01;  // Enable ADC and select channel 0 (AN0)
-    ADCON1 = 0x09;  // Configure AN0 to AN3 as analog inputs, others as digital
-    ADCON2 = 0xA9;  // Right justified, 12 TAD, Fosc/8
+    ADCON0 = 0b00000001; // Enable ADC and select channel 0 (AN0)
+    ADCON1 = 0b00001011; // Configure AN0 to AN3 as analog inputs, others as digital
+    ADCON2 = 0b10101001; // Right justified, 12 TAD, Fosc/8
 
     // Set up Timer1 for 0.1-second overflows
     T1CONbits.TMR1CS = 0;    // Clock source = internal (Fosc/4)
@@ -174,7 +176,7 @@ void SetFullCap(long value) {
 
 void MainLoop() {
     if (!mainloop_enabled) return;
-
+    
     ReadSensors();
     
     if (state != STATE_INITIAL) {
@@ -316,7 +318,8 @@ void __interrupt(high_priority) HighISR(void) {
         if (overflow_count >= 5) {  // 0.1 s * 5 = 0.5 s
             overflow_count = 0;
             sec ^= 1;
-            MainLoop();
+            if (mainloop_enabled)
+                MainLoop();
         }
     }
 }
@@ -324,10 +327,12 @@ void __interrupt(high_priority) HighISR(void) {
 void main(void) {
     
     Initialize();
+    
     LATCbits.LATC6 = 1;
     LATCbits.LATC7 = 1;
-
-    __delay_ms(3000);
+    __delay_ms(1000);
+    LATCbits.LATC6 = 0;
+    LATCbits.LATC7 = 0;
     
     // enable main loop
     mainloop_enabled = 1;
