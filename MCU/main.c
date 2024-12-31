@@ -14,10 +14,10 @@
  * RA6: OSC2
  * RA7: OSC1
  * RC0: REL_CHARGE (output)
- * RC1: REL_BOOST_IN (output)
+ * RC1: EN_BOOST_IN (output)
  * RC2: REL_BUCK_OUT (output)
  * RC3: REL_HEATER (output)
- * RC4: NC
+ * RC4: REL_BOOST_IN (output)
  * RC5: NC
  * RC6: LED red
  * RC7: LED green
@@ -258,13 +258,16 @@ void MainLoop() {
                     (system_voltage > VOLTAGE_FORCE_CHARGING || soc < SOC_CHARGE_IF_NEEDED)) {
                 if (!PORTCbits.RC0) {
                     LATCbits.LATC6 = 1; // red LED
-                    LATCbits.LATC1 = 1; // boost converter input relay
+                    LATCbits.LATC1 = 1; // boost converter input MOSFET
+                    __delay_ms(100);
+                    LATCbits.LATC4 = 1; // boost converter input relay
                     __delay_ms(200);
                     LATCbits.LATC0 = 1; // charging relay
                 }
             } else {
                 LATCbits.LATC6 = sec; // red LED
-                LATCbits.LATC1 = 0; // boost converter input
+                LATCbits.LATC1 = 0; // boost converter input MOSFET
+                LATCbits.LATC4 = 0; // boost converter input relay
                 LATCbits.LATC0 = 0; // charging relay
             }
 
@@ -279,7 +282,8 @@ void MainLoop() {
             if (stop_charge)
             {
                 LATCbits.LATC6 = 0; // red LED
-                LATCbits.LATC1 = 0; // boost converter input
+                LATCbits.LATC1 = 0; // boost converter input MOSFET
+                LATCbits.LATC4 = 0; // boost converter input relay
                 LATCbits.LATC0 = 0; // charging relay
                 LATCbits.LATC3 = 0; // heater relay
             }
