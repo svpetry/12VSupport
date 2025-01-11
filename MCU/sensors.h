@@ -1,10 +1,3 @@
-/* 
- * File:   sensors.h
- * Author: svpet
- *
- * Created on 1. Dezember 2024, 19:05
- */
-
 #ifndef SENSORS_H
 #define	SENSORS_H
 

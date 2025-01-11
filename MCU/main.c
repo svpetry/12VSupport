@@ -38,6 +38,7 @@
 #include "base.h"
 #include "eeprom.h"
 #include "sensors.h"
+#include "capacity.h"
 
 // Calculate Timer1 initial value for 0.1-second overflow
 // Timer tick period = (Prescaler * 4) / Fosc = (8 * 4) / 10MHz = 3.2 µs
@@ -46,32 +47,6 @@
 #define TIMER_HI 0x85
 #define TIMER_LO 0xEE
 
-// capacity values
-long rem_cap; // remaining capacity in uAh
-long full_cap; // full capacity in mAh
-int soc = 0; // current calculated SOC
-
-typedef struct {
-    long voltage; // voltage in mV
-    int soc; // SOC in permille
-} VoltageSoc;
-
-int soc_level_count = 11;
-VoltageSoc voltage_soc[] = 
-{
-    {28800, 1000},
-    {28000, 900},
-    {27200, 800},
-    {26800, 700},
-    {26560, 600},
-    {26400, 500}, 
-    {26240, 400},
-    {26080, 300},
-    {25600, 200},
-    {24800, 100},
-    {20000, 0}
-};
-
 // program flow
 #define STATE_INITIAL 0
 #define STATE_READY 1
@@ -79,6 +54,7 @@ VoltageSoc voltage_soc[] =
 #define STATE_EMPTY 3
 #define STATE_CHARGING 4
 #define STATE_FULL 5
+
 unsigned char mainloop_enabled = 0;
 unsigned char state = STATE_INITIAL ;
 unsigned char cap_reset_empty = 0;
@@ -114,39 +90,6 @@ void Initialize() {
     INTCONbits.GIE = 1;     // Enable Global Interrupts
 }
 
-long GuessRemainingCap() {
-    long soc_pm = 0; // SOC in permille
-    
-    if (batt_current >= voltage_soc[0].voltage) {
-        soc_pm = voltage_soc[0].soc;
-    } else {
-        for (int i = 1; i < soc_level_count; i++) {
-            if (batt_voltage >= voltage_soc[i].voltage) {
-                soc_pm = 
-                    (batt_voltage - voltage_soc[i].voltage) 
-                    * (voltage_soc[i - 1].soc - voltage_soc[i].soc) 
-                    / (voltage_soc[i - 1].voltage - voltage_soc[i].voltage) 
-                    + voltage_soc[i].soc;
-                break;
-            }
-        }
-    }
-    return full_cap * soc_pm;
-}
-
-void CountRemainingCapacity() {
-    if (!sec) return;
-    
-    // this is executed every second
-    rem_cap -= batt_current * 1000 / 3600;
-    if (rem_cap < 0)
-        rem_cap = 0;
-}
-
-void CalcSoc() {
-    soc = (int)(rem_cap / (10 * full_cap));
-}
-
 void SetSocLeds() {
     unsigned char portb = 0;
     if (soc > 0)
@@ -162,25 +105,14 @@ void SetSocLeds() {
     LATB = portb;
 }
 
-long InitFullCap() {
-    if (EEPROM_Read_32Bit(EEPROM_ADDR_VERSION) == EEPROM_VERSION) 
-        return EEPROM_Read_32Bit(EEPROM_ADDR_FULL_CAP);
-    return INITIAL_FULL_CAP;
-}
-
-void SetFullCap(long value) {
-    full_cap = value;
-    EEPROM_Write_32Bit(EEPROM_ADDR_VERSION, EEPROM_VERSION);
-    EEPROM_Write_32Bit(EEPROM_ADDR_FULL_CAP, value);
-}
-
 void MainLoop() {
     if (!mainloop_enabled) return;
     
     ReadSensors();
     
     if (state != STATE_INITIAL) {
-        CountRemainingCapacity();
+        if (sec)
+            CountRemainingCapacity();
         CalcSoc();
         SetSocLeds();
     }
@@ -202,14 +134,15 @@ void MainLoop() {
         }
         
         case STATE_READY: {
-            if (system_voltage < VOLTAGE_START_SUPPLY) {
-                LATCbits.LATC6 = 0; // red LED
+            LATCbits.LATC6 = 0; // red LED
+            LATCbits.LATC7 = 0; // green LED
+            
+            if (system_voltage < VOLTAGE_START_SUPPLY)
                 state = STATE_SUPPLYING;
-            } else if (system_voltage > VOLTAGE_CHARGE_IF_NEEDED) {
-                LATCbits.LATC6 = 0; // red LED
+            else if (system_voltage > VOLTAGE_CHARGE_IF_NEEDED)
                 state = STATE_CHARGING;
-            } else if (batt_voltage <= BAT_VOLTAGE_EMPTY)
-                LATCbits.LATC6 = sec; // red LED
+            else if (batt_voltage <= BAT_VOLTAGE_EMPTY)
+                state = STATE_EMPTY;
             break;
         }
 
@@ -221,7 +154,7 @@ void MainLoop() {
             if (batt_voltage > VOLTAGE_CHARGE_IF_NEEDED) {
                 stop_supply = 1;
                 state = STATE_CHARGING;
-            } else if (batt_current < BAT_CURRENT_THRESHOLD && batt_voltage < BAT_VOLTAGE_EMPTY) {
+            } else if (batt_voltage < BAT_VOLTAGE_EMPTY) {
                 stop_supply = 1;
                 state = STATE_EMPTY;
             }
@@ -275,7 +208,7 @@ void MainLoop() {
             if (system_voltage < VOLTAGE_STOP_CHARGING) {
                 stop_charge = 1;
                 state = STATE_READY;
-            } else if (batt_current < BAT_CURRENT_THRESHOLD && batt_voltage > BAT_VOLTAGE_FULL) {
+            } else if (batt_current < BAT_MIN_CHARGE_CURRENT && batt_voltage > BAT_VOLTAGE_FULL) {
                 stop_charge = 1;
                 state = STATE_FULL;
             }

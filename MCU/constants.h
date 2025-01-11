@@ -1,10 +1,3 @@
-/* 
- * File:   constants.h
- * Author: svpet
- *
- * Created on 1. Dezember 2024, 19:02
- */
-
 #ifndef CONSTANTS_H
 #define	CONSTANTS_H
 
@@ -16,12 +9,12 @@
 
 #define VOLTAGE_FORCE_CHARGING 14000
 #define VOLTAGE_CHARGE_IF_NEEDED 13500
-#define SOC_CHARGE_IF_NEEDED 50
+#define SOC_CHARGE_IF_NEEDED 80
 #define VOLTAGE_STOP_CHARGING 13200
 #define VOLTAGE_START_SUPPLY 12700
 #define CHARGING_MIN_TEMP 40
 #define HEATER_TEMP 60
-#define BAT_CURRENT_THRESHOLD 80
+#define BAT_MIN_CHARGE_CURRENT 500
 
 #define EEPROM_VERSION 0x5501
 #define EEPROM_ADDR_VERSION 0x00
