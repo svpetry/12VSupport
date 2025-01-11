@@ -66,6 +66,7 @@ void Initialize() {
     LATB = 0;
     TRISC = 0x00;
     LATC = 0;
+    TRISA = 0xFF; // PORTA = input
     
     // Configure ADC
     ADCON0 = 0b00000001; // Enable ADC and select channel 0 (AN0)
