@@ -55,7 +55,7 @@ VoltageSoc voltage_soc[] =
 long GuessRemainingCap() {
     long soc_pm = 0; // SOC in permille
     
-    if (batt_current >= voltage_soc[0].voltage) {
+    if (batt_voltage >= voltage_soc[0].voltage) {
         soc_pm = voltage_soc[0].soc;
     } else {
         for (int i = 1; i < soc_level_count; i++) {
