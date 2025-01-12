@@ -15,6 +15,9 @@ typedef struct {
 } VoltageSoc;
 
 int soc_level_count = 11;
+
+// LiFePo4 24V (8s))
+#ifdef LIFEPO
 VoltageSoc voltage_soc[] = 
 {
     {28800, 1000},
@@ -29,6 +32,25 @@ VoltageSoc voltage_soc[] =
     {24800, 100},
     {20000, 0}
 };
+#endif
+
+// LiIon 10S
+#ifdef LIION
+VoltageSoc voltage_soc[] = 
+{
+    {4200L * CELLS_SERIAL, 1000},
+    {4000L * CELLS_SERIAL, 900},
+    {3900L * CELLS_SERIAL, 800},
+    {3800L * CELLS_SERIAL, 700},
+    {3700L * CELLS_SERIAL, 600},
+    {3600L * CELLS_SERIAL, 500}, 
+    {3500L * CELLS_SERIAL, 400},
+    {3400L * CELLS_SERIAL, 300},
+    {3200L * CELLS_SERIAL, 200},
+    {3000L * CELLS_SERIAL, 100},
+    {2500L * CELLS_SERIAL, 0}
+};
+#endif
 
 long GuessRemainingCap() {
     long soc_pm = 0; // SOC in permille
