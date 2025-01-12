@@ -6,7 +6,7 @@
 
 #ifdef LIFEPO
 // LiFePo4 24V (8s))
-#define INITIAL_FULL_CAP 38000
+#define INITIAL_FULL_CAP 40000
 #define BAT_VOLTAGE_EMPTY 20000
 #define BAT_VOLTAGE_FULL 28000
 #endif
