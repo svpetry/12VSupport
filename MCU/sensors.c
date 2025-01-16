@@ -13,7 +13,7 @@ unsigned int ADC_Read(unsigned char channel) {
     
     ADCON0 &= 0b11000001;        // Clear channel selection bits
     ADCON0 |= (channel << 2);    // Set the required channel
-    __delay_us(10);              // Acquisition time to charge hold capacitor
+    __delay_us(50);              // Acquisition time to charge hold capacitor
     
     ADCON0bits.GO = 1;           // Start A/D conversion
     while (ADCON0bits.GO);       // Wait for conversion to complete

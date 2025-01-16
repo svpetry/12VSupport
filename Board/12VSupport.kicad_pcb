@@ -11966,7 +11966,7 @@
 				)
 			)
 		)
-		(property "Value" "GREEN"
+		(property "Value" "CHG"
 			(at 0 1.65 90)
 			(layer "F.Fab")
 			(uuid "adea0506-d50d-4d54-8f58-c9bc7317a0d2")
@@ -18063,7 +18063,7 @@
 				)
 			)
 		)
-		(property "Value" "RED"
+		(property "Value" "DCHG"
 			(at 0 1.65 90)
 			(layer "F.Fab")
 			(uuid "705585b0-797d-4920-83e7-d4a02e6daf32")

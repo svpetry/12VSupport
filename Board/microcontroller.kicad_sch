@@ -4074,7 +4074,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "RED"
+		(property "Value" "DCHG"
 			(at 55.0672 108.0008 90)
 			(effects
 				(font
@@ -4143,7 +4143,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "GREEN"
+		(property "Value" "CHG"
 			(at 65.2272 108.0008 90)
 			(effects
 				(font
