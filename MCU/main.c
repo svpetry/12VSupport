@@ -60,13 +60,14 @@ unsigned char state = STATE_INITIAL ;
 unsigned char cap_reset_empty = 0;
 unsigned char sec = 0;
 unsigned char wait = 0;
+unsigned char cal_countdown = 10;
 
 void Initialize() {
     // configure ports
     TRISB = 0x00;
-    LATB = 0;
+    LATB = 0x00;
     TRISC = 0x00;
-    LATC = 0b00000100;;
+    LATC = 0x00;
     TRISA = 0xFF; // PORTA = input
     
     // Configure ADC
@@ -121,7 +122,7 @@ void MainLoop() {
     
     switch (state) {
         case STATE_INITIAL: {
-            LATC = 0b00000100;
+            LATC = 0;
             LATB = 0;
             if (batt_voltage > BATT_VOLTAGE_MIN) {
                 full_cap = INITIAL_FULL_CAP;
@@ -131,6 +132,21 @@ void MainLoop() {
                 // no battery
                 LATCbits.LATC6 = sec; // discharge LED
                 LATCbits.LATC7 = 1 - sec; // charge LED
+                
+                if (cal_countdown > 0) {
+                    cal_countdown--;
+                    if (cal_countdown == 0) {
+                        LATB = 0xFF;
+                        __delay_ms(100);
+                        LATB = 0x00;
+                        __delay_ms(100);
+                        LATB = 0xFF;
+                        __delay_ms(100);
+                        LATB = 0x00;
+                        __delay_ms(10);
+                        Calibrate();
+                    }
+                }
             }
             break;
         }
@@ -171,7 +187,7 @@ void MainLoop() {
 
         case STATE_EMPTY: {
             if (!cap_reset_empty) {
-                SetFullCap(full_cap - rem_cap / 1000);
+                full_cap = full_cap - rem_cap / 1000;
                 rem_cap = 0;
                 cap_reset_empty = 1;
             }
@@ -235,7 +251,7 @@ void MainLoop() {
         case STATE_FULL: {
             if (cap_reset_empty) {
                 cap_reset_empty = 0;
-                SetFullCap(rem_cap / 1000);
+                full_cap = rem_cap / 1000;
             } else
                 rem_cap = full_cap * 1000;
 
@@ -273,6 +289,7 @@ void __interrupt(high_priority) HighISR(void) {
 void main(void) {
     
     Initialize();
+    InitSensors();
     
     LATCbits.LATC6 = 1;
     LATCbits.LATC7 = 1;

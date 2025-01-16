@@ -9,8 +9,6 @@ extern int soc; // current calculated SOC
 extern long GuessRemainingCap(void);
 extern void CountRemainingCapacity(void);
 extern void CalcSoc(void);
-extern long InitFullCap(void);
-extern void SetFullCap(long value);
 
 #endif	/* CAPACITY_H */
 

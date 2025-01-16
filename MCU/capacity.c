@@ -82,15 +82,3 @@ void CountRemainingCapacity() {
 void CalcSoc() {
     soc = (int)(rem_cap / (10 * full_cap));
 }
-
-long InitFullCap() {
-    if (EEPROM_Read_32Bit(EEPROM_ADDR_VERSION) == EEPROM_VERSION) 
-        return EEPROM_Read_32Bit(EEPROM_ADDR_FULL_CAP);
-    return INITIAL_FULL_CAP;
-}
-
-void SetFullCap(long value) {
-    full_cap = value;
-    EEPROM_Write_32Bit(EEPROM_ADDR_VERSION, EEPROM_VERSION);
-    EEPROM_Write_32Bit(EEPROM_ADDR_FULL_CAP, value);
-}
