@@ -108,6 +108,11 @@ void SetSocLeds() {
     LATB = portb;
 }
 
+void SwitchState(unsigned char new_state) {
+    state = new_state;
+    wait = 2;
+}
+
 void MainLoop() {
     if (!mainloop_enabled) return;
     
@@ -120,6 +125,11 @@ void MainLoop() {
         SetSocLeds();
     }
     
+    if (wait > 0) {
+        wait--;
+        return;
+    }
+
     switch (state) {
         case STATE_INITIAL: {
             LATC = 0b00000100;
@@ -127,8 +137,7 @@ void MainLoop() {
             if (batt_voltage > BATT_VOLTAGE_MIN) {
                 full_cap = INITIAL_FULL_CAP;
                 rem_cap = GuessRemainingCap();
-                wait = 10;
-                state = STATE_READY;
+                SwitchState(STATE_READY);
             } else {
                 // no battery
                 LATCbits.LATC6 = sec; // discharge LED
@@ -146,6 +155,9 @@ void MainLoop() {
                         LATB = 0x00;
                         __delay_ms(10);
                         Calibrate();
+                        
+                        // Halt
+                        while (1);
                     }
                 }
             }
@@ -153,20 +165,19 @@ void MainLoop() {
         }
         
         case STATE_READY: {
-            LATCbits.LATC6 = 0; // discharge LED
+            LATCbits.LATC6 = 1; // discharge LED
             LATCbits.LATC7 = 0; // charge LED
+            __delay_ms(50);
+            LATCbits.LATC6 = 0; // discharge LED
             
-            if (wait == 0) {
-                if (batt_voltage >= BATT_VOLTAGE_MIN && system_voltage >= SYS_VOLTAGE_MIN) {
-                    if (system_voltage <= SYS_VOLTAGE_START_SUPPLY)
-                        state = STATE_SUPPLYING;
-                    else if (system_voltage >= SYS_VOLTAGE_START_CHARGE)
-                        state = STATE_CHARGING;
-                    else if (batt_voltage <= BAT_VOLTAGE_EMPTY)
-                        state = STATE_EMPTY;
-                }
-            } else
-                wait--;
+            if (batt_voltage >= BATT_VOLTAGE_MIN) {
+                if (system_voltage <= SYS_VOLTAGE_START_SUPPLY)
+                    SwitchState(STATE_SUPPLYING);
+                else if (system_voltage >= SYS_VOLTAGE_START_CHARGE)
+                    SwitchState(STATE_CHARGING);
+                else if (batt_voltage <= BAT_VOLTAGE_EMPTY)
+                    SwitchState(STATE_EMPTY);
+            }
             break;
         }
 
@@ -175,13 +186,13 @@ void MainLoop() {
             LATCbits.LATC6 = 1; // discharge LED
             LATCbits.LATC2 = 0; // buck output relay (1 = off)
 
-            if (batt_voltage >= SYS_VOLTAGE_STOP_SUPPLY) {
+            if (system_voltage >= SYS_VOLTAGE_STOP_SUPPLY) {
                 stop_supply = 1;
-                wait = 2;
-                state = STATE_READY;
+                wait = 4;
+                SwitchState(STATE_READY);
             } else if (batt_voltage <= BAT_VOLTAGE_EMPTY) {
                 stop_supply = 1;
-                state = STATE_EMPTY;
+                SwitchState(STATE_EMPTY);
             }
             
             if (stop_supply) {
@@ -201,7 +212,7 @@ void MainLoop() {
             LATCbits.LATC7 = sec; // charge LED
             if (system_voltage >= SYS_VOLTAGE_START_CHARGE) {
                 LATCbits.LATC7 = 0; // charge LED
-                state = STATE_CHARGING;
+                SwitchState(STATE_CHARGING);
             }
             break;
         }
@@ -216,7 +227,7 @@ void MainLoop() {
             if (batt_temp >= CHARGING_MIN_TEMP) {
                 if (!charging) {
                     LATCbits.LATC7 = 1; // charge LED
-                    LATCbits.LATC1 = 1; // boost converter input MOSFET
+                    //LATCbits.LATC1 = 1; // boost converter input MOSFET
                     __delay_ms(100);
                     LATCbits.LATC4 = 1; // boost converter input relay
                     __delay_ms(200);
@@ -226,7 +237,7 @@ void MainLoop() {
                 }
             } else {
                 LATCbits.LATC7 = sec; // charge LED
-                LATCbits.LATC1 = 0; // boost converter input MOSFET
+                //LATCbits.LATC1 = 0; // boost converter input MOSFET
                 LATCbits.LATC4 = 0; // boost converter input relay
                 LATCbits.LATC0 = 0; // charging relay
                 charging = 0;
@@ -237,22 +248,21 @@ void MainLoop() {
                 if (system_voltage <= SYS_VOLTAGE_STOP_CHARGE) {
                     stop_charge = 1;
                     wait = 2;
-                    state = STATE_READY;
+                    SwitchState(STATE_READY);
                 } else if (charging && batt_current <= BAT_MIN_CHARGE_CURRENT && batt_voltage >= BAT_VOLTAGE_FULL) {
                     stop_charge = 1;
-                    state = STATE_FULL;
+                    SwitchState(STATE_FULL);
                 }
                 if (stop_charge)
                 {
                     charging = 0;
                     LATCbits.LATC7 = 0; // charge LED
-                    LATCbits.LATC1 = 0; // boost converter input MOSFET
+                    //LATCbits.LATC1 = 0; // boost converter input MOSFET
                     LATCbits.LATC4 = 0; // boost converter input relay
                     LATCbits.LATC0 = 0; // charging relay
                     LATCbits.LATC3 = 0; // heater relay
                 }
-            } else
-                wait--;
+            }
             break;
         }
 
@@ -265,7 +275,7 @@ void MainLoop() {
 
             if (system_voltage <= SYS_VOLTAGE_STOP_CHARGE)
                 wait = 2;
-                state = STATE_READY;
+                SwitchState(STATE_READY);
             break;
         }
 
@@ -305,9 +315,11 @@ void main(void) {
     __delay_ms(2000);
     LATCbits.LATC6 = 0;
     LATCbits.LATC7 = 0;
+    
+    LATCbits.LATC2 = 1; // buck output relay (1 = off)
     __delay_ms(1000);
 
-/*
+/*    
     while (1) {
         ReadSensors();
         
@@ -316,7 +328,7 @@ void main(void) {
         LATB = 0;
         __delay_ms(500);
 
-        long value = batt_temp;
+        long value = system_voltage / 100;
         unsigned int dig3 = value % 10;
         value /= 10;
         unsigned int dig2 = value % 10;
@@ -337,9 +349,8 @@ void main(void) {
         __delay_ms(1000);
         LATB = 0;
         __delay_ms(500);
-       
     }
-*/
+ */
     
     // enable main loop
     mainloop_enabled = 1;
