@@ -1505,6 +1505,151 @@
 				)
 			)
 		)
+		(symbol "Switch:SW_Push"
+			(pin_numbers hide)
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "SW"
+				(at 1.27 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "SW_Push"
+				(at 0 -1.524 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Push button switch, generic, two pins"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "switch normally-open pushbutton push-button"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SW_Push_0_1"
+				(circle
+					(center -2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 1.27) (xy 0 3.048)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 1.27) (xy -2.54 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "Transistor_FET:BSS138"
 			(pin_names hide)
 			(exclude_from_sim no)
@@ -2619,6 +2764,12 @@
 		(uuid "35c6b72b-2ed1-4ecd-88a6-5e6a9e5ce49a")
 	)
 	(junction
+		(at 152.4 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "47612a64-3942-429b-b0b7-a2602812e812")
+	)
+	(junction
 		(at 31.75 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2673,10 +2824,6 @@
 	(no_connect
 		(at 87.63 71.12)
 		(uuid "ae3fef0a-99e4-423b-aff0-d5a73bdd57c1")
-	)
-	(no_connect
-		(at 148.59 68.58)
-		(uuid "d0c5d0e4-7f90-471c-a842-d9462f7c27d2")
 	)
 	(wire
 		(pts
@@ -2860,6 +3007,16 @@
 	)
 	(wire
 		(pts
+			(xy 152.4 34.29) (xy 156.21 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35ea15b3-f333-4af3-8aa4-1f1f4c2b083f")
+	)
+	(wire
+		(pts
 			(xy 59.69 99.06) (xy 59.69 115.57)
 		)
 		(stroke
@@ -2910,6 +3067,16 @@
 	)
 	(wire
 		(pts
+			(xy 170.18 34.29) (xy 170.18 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ccafaf5-b779-4ef0-8314-2c5c6217ee3a")
+	)
+	(wire
+		(pts
 			(xy 41.91 91.44) (xy 41.91 90.17)
 		)
 		(stroke
@@ -2937,6 +3104,26 @@
 			(type default)
 		)
 		(uuid "447146ca-212d-449d-95d4-4e070b35bf6c")
+	)
+	(wire
+		(pts
+			(xy 152.4 34.29) (xy 152.4 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "466540f8-0644-48eb-990e-ed041321f433")
+	)
+	(wire
+		(pts
+			(xy 139.7 34.29) (xy 152.4 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "46f23420-6872-42a3-8c2e-b753a94fd455")
 	)
 	(wire
 		(pts
@@ -3490,6 +3677,16 @@
 	)
 	(wire
 		(pts
+			(xy 148.59 68.58) (xy 152.4 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ddb6f7f7-9a2d-4522-a6dd-11cf2c16857a")
+	)
+	(wire
+		(pts
 			(xy 231.14 104.14) (xy 231.14 102.87)
 		)
 		(stroke
@@ -3520,6 +3717,16 @@
 	)
 	(wire
 		(pts
+			(xy 166.37 34.29) (xy 170.18 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4fe988a-d9f6-478d-a3e3-3cc7d90f64a4")
+	)
+	(wire
+		(pts
 			(xy 196.85 58.42) (xy 196.85 57.15)
 		)
 		(stroke
@@ -3527,6 +3734,16 @@
 			(type default)
 		)
 		(uuid "e61dd4a6-29b1-41d2-b9d7-adcfef5ac1fc")
+	)
+	(wire
+		(pts
+			(xy 118.11 34.29) (xy 132.08 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eab350ae-cf57-4fb1-9798-f6a5f5ca7e34")
 	)
 	(wire
 		(pts
@@ -3621,6 +3838,17 @@
 			(justify left bottom)
 		)
 		(uuid "55bccffb-a62e-4d35-9ea4-9b262f938927")
+	)
+	(label "CAL"
+		(at 146.05 34.29 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7de7cb99-c501-44cd-8865-aa9359b2d04a")
 	)
 	(label "FAN"
 		(at 162.56 93.98 0)
@@ -5081,6 +5309,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 135.89 34.29 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8039bc40-3686-403a-86c8-b23aa5719fd6")
+		(property "Reference" "R26"
+			(at 134.7216 32.512 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4K7"
+			(at 137.033 32.512 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 135.89 36.068 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 135.89 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 135.89 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "42590560-3193-432e-988a-58e2d981b759")
+		)
+		(pin "2"
+			(uuid "43b17495-66af-4ec8-8025-952b94d11881")
+		)
+		(instances
+			(project "12VSupport"
+				(path "/f0c44745-560b-4dea-806a-2541c74a511b/3945f109-57ed-41f6-8253-6d6ba9eb298d"
+					(reference "R26")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C_Polarized")
 		(at 99.06 40.64 0)
 		(mirror y)
@@ -5210,6 +5507,71 @@
 			(project "12VSupport"
 				(path "/f0c44745-560b-4dea-806a-2541c74a511b/3945f109-57ed-41f6-8253-6d6ba9eb298d"
 					(reference "#PWR041")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 170.18 36.83 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "850f84a8-2240-4d5b-a393-5e62072d8be6")
+		(property "Reference" "#PWR012"
+			(at 170.18 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 170.307 41.2242 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 170.18 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 170.18 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 170.18 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d913c0bf-7efe-4c9f-8f88-c8be17390344")
+		)
+		(instances
+			(project "12VSupport"
+				(path "/f0c44745-560b-4dea-806a-2541c74a511b/3945f109-57ed-41f6-8253-6d6ba9eb298d"
+					(reference "#PWR012")
 					(unit 1)
 				)
 			)
@@ -6444,6 +6806,73 @@
 			(project "12VSupport"
 				(path "/f0c44745-560b-4dea-806a-2541c74a511b/3945f109-57ed-41f6-8253-6d6ba9eb298d"
 					(reference "R9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_Push")
+		(at 161.29 34.29 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "caf95f66-7122-4c2d-9a03-5cf761900707")
+		(property "Reference" "SW1"
+			(at 161.29 27.051 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "CALIBRATE"
+			(at 161.29 29.3624 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_SMD:SW_SPST_CK_RS282G05A3"
+			(at 161.29 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 161.29 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 161.29 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "690bca4e-d642-4aec-bf0e-ff9d6001f8fd")
+		)
+		(pin "2"
+			(uuid "1cf42bcc-ef05-4164-9cde-87a5062b1639")
+		)
+		(instances
+			(project "12VSupport"
+				(path "/f0c44745-560b-4dea-806a-2541c74a511b/3945f109-57ed-41f6-8253-6d6ba9eb298d"
+					(reference "SW1")
 					(unit 1)
 				)
 			)

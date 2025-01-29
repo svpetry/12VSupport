@@ -9,7 +9,7 @@
  * RA1: TEMP_SENSE (AN1)
  * RA2: BAT_SENSE (AN2)
  * RA3: CURR_SENSE (AN3)
- * RA4: NC
+ * RA4: CALIBRATE switch
  * RA5: NC
  * RA6: OSC2
  * RA7: OSC1
@@ -27,12 +27,13 @@
  * RB2: SOC LED 60%
  * RB3: SOC LED 80%
  * RB4: SOC LED 100%
- * RB5: NC
+ * RB5: FAN
  * RB6: PGC
  * RB7: PGD
  */
 
 #include <xc.h>
+#include <pic18f2480.h>
 #include "config.h"
 #include "constants.h"
 #include "base.h"
@@ -54,6 +55,7 @@
 #define STATE_EMPTY 3
 #define STATE_CHARGING 4
 #define STATE_FULL 5
+#define STATE_OVERHEAT 6
 
 unsigned char mainloop_enabled = 0;
 unsigned char state = STATE_INITIAL ;
@@ -110,7 +112,7 @@ void SetSocLeds() {
 
 void SwitchState(unsigned char new_state) {
     state = new_state;
-    wait = 2;
+    wait = 8;
 }
 
 void MainLoop() {
@@ -142,8 +144,22 @@ void MainLoop() {
                 // no battery
                 LATCbits.LATC6 = sec; // discharge LED
                 LATCbits.LATC7 = 1 - sec; // charge LED
+/*
+                if (PORTAbits.RA4 == 0) {
+                        LATB = 0xFF;
+                        __delay_ms(100);
+                        LATB = 0x00;
+                        __delay_ms(100);
+                        LATB = 0xFF;
+                        __delay_ms(100);
+                        LATB = 0x00;
+                        __delay_ms(10);
+                        Calibrate();
+                }
                 
-                if (cal_countdown > 0) {
+                if (cal_countdown > 0 && 
+                        system_voltage >= SYS_VOLTAGE_MIN && 
+                        system_voltage <= SYS_VOLTAGE_MAX) {
                     cal_countdown--;
                     if (cal_countdown == 0) {
                         LATB = 0xFF;
@@ -155,11 +171,9 @@ void MainLoop() {
                         LATB = 0x00;
                         __delay_ms(10);
                         Calibrate();
-                        
-                        // Halt
-                        while (1);
                     }
                 }
+ */
             }
             break;
         }
@@ -183,8 +197,12 @@ void MainLoop() {
 
         case STATE_SUPPLYING: {
             unsigned char stop_supply = 0;
+            
             LATCbits.LATC6 = 1; // discharge LED
-            LATCbits.LATC2 = 0; // buck output relay (1 = off)
+            if (batt_temp <= MAX_TEMP)
+                LATCbits.LATC2 = 0; // buck output relay (1 = off)
+            else
+                LATCbits.LATC2 = 1; // buck output relay (1 = off)
 
             if (system_voltage >= SYS_VOLTAGE_STOP_SUPPLY) {
                 stop_supply = 1;
@@ -209,9 +227,9 @@ void MainLoop() {
                 rem_cap = 0;
                 cap_reset_empty = 1;
             }
-            LATCbits.LATC7 = sec; // charge LED
+            LATCbits.LATC6 = sec; // discharge LED
             if (system_voltage >= SYS_VOLTAGE_START_CHARGE) {
-                LATCbits.LATC7 = 0; // charge LED
+                LATCbits.LATC6 = 0; // discharge LED
                 SwitchState(STATE_CHARGING);
             }
             break;
@@ -223,21 +241,23 @@ void MainLoop() {
             else 
                 LATCbits.LATC3 = 0; // heater relay
             
+            LATBbits.LATB5 = 1; // fan
+
             static unsigned char charging = 0;
-            if (batt_temp >= CHARGING_MIN_TEMP) {
+            if (batt_temp >= CHARGING_MIN_TEMP && batt_temp <= MAX_TEMP) {
                 if (!charging) {
                     LATCbits.LATC7 = 1; // charge LED
-                    //LATCbits.LATC1 = 1; // boost converter input MOSFET
-                    __delay_ms(100);
+                    LATCbits.LATC1 = 1; // boost converter input MOSFET
+                    __delay_ms(200);
                     LATCbits.LATC4 = 1; // boost converter input relay
                     __delay_ms(200);
                     LATCbits.LATC0 = 1; // charging relay
-                    wait = 2;
+                    wait = 6;
                     charging = 1;
                 }
             } else {
                 LATCbits.LATC7 = sec; // charge LED
-                //LATCbits.LATC1 = 0; // boost converter input MOSFET
+                LATCbits.LATC1 = 0; // boost converter input MOSFET
                 LATCbits.LATC4 = 0; // boost converter input relay
                 LATCbits.LATC0 = 0; // charging relay
                 charging = 0;
@@ -247,9 +267,8 @@ void MainLoop() {
                 unsigned char stop_charge = 0;
                 if (system_voltage <= SYS_VOLTAGE_STOP_CHARGE) {
                     stop_charge = 1;
-                    wait = 2;
                     SwitchState(STATE_READY);
-                } else if (charging && batt_current <= BAT_MIN_CHARGE_CURRENT && batt_voltage >= BAT_VOLTAGE_FULL) {
+                } else if (charging && batt_current_abs <= BAT_MIN_CHARGE_CURRENT && batt_voltage >= BAT_VOLTAGE_FULL) {
                     stop_charge = 1;
                     SwitchState(STATE_FULL);
                 }
@@ -257,10 +276,11 @@ void MainLoop() {
                 {
                     charging = 0;
                     LATCbits.LATC7 = 0; // charge LED
-                    //LATCbits.LATC1 = 0; // boost converter input MOSFET
+                    LATCbits.LATC1 = 0; // boost converter input MOSFET
                     LATCbits.LATC4 = 0; // boost converter input relay
                     LATCbits.LATC0 = 0; // charging relay
                     LATCbits.LATC3 = 0; // heater relay
+                    LATBbits.LATB5 = 0; // fan
                 }
             }
             break;
@@ -274,7 +294,6 @@ void MainLoop() {
                 rem_cap = full_cap * 1000;
 
             if (system_voltage <= SYS_VOLTAGE_STOP_CHARGE)
-                wait = 2;
                 SwitchState(STATE_READY);
             break;
         }
@@ -290,8 +309,8 @@ void __interrupt(high_priority) HighISR(void) {
         PIR1bits.TMR1IF = 0;
 
         // Reload Timer1 register for next interrupt
-        TMR1H = TIMER_HI; // High byte of 34,286
-        TMR1L = TIMER_LO; // Low byte of 34,286
+        TMR1H = TIMER_HI;
+        TMR1L = TIMER_LO;
 
         // Increment overflow counter
         static unsigned char overflow_count = 0;
@@ -351,6 +370,9 @@ void main(void) {
         __delay_ms(500);
     }
  */
+    
+    for (unsigned char i = 0; i < SENSOR_MEM_COUNT; i++)
+        ReadSensors();
     
     // enable main loop
     mainloop_enabled = 1;

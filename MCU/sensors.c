@@ -5,9 +5,16 @@
 #include "base.h"
 
 // sensor values
+long system_voltage_mem[SENSOR_MEM_COUNT]; // system voltage in mV
 long system_voltage; // system voltage in mV
+
+long batt_voltage_mem[SENSOR_MEM_COUNT]; // battery voltage in mV
 long batt_voltage; // battery voltage in mV
+
+int batt_temp_mem[SENSOR_MEM_COUNT]; // battery temperature in 1/10 deg C
 int batt_temp; // battery temperature in 1/10 deg C
+
+long batt_current_mem[SENSOR_MEM_COUNT]; // battery current in mA
 long batt_current; // battery current in mA
 long batt_current_abs; // abs battery current in mA
 
@@ -31,14 +38,23 @@ long ReadMillivolts(unsigned char channel) {
     long value = 0;
     for (unsigned char i = 0; i < 5; i++) {
         value += ADC_Read(channel);
-        __delay_us(50);
+        __delay_ms(4);
     }
     return (value * 1000) / 1024 + correction;
 }
 
 void ReadBattCurrent() {
+    for (unsigned char i = SENSOR_MEM_COUNT - 1; i > 0; i--)
+        batt_current_mem[i] = batt_current_mem[i - 1];
+
     // 100 mV/A
-    batt_current = (ReadMillivolts(3) - 2500) * 10 + amp_correction;
+    batt_current_mem[0] = (ReadMillivolts(3) - 2500) * 10 + amp_correction;
+    
+    batt_current = 0;
+    for (unsigned char i = 0; i < SENSOR_MEM_COUNT; i++)
+        batt_current += batt_current_mem[i];
+    batt_current /= SENSOR_MEM_COUNT;
+    
     if (batt_current < 0)
         batt_current_abs = -batt_current;
     else
@@ -46,15 +62,33 @@ void ReadBattCurrent() {
 }
 
 void ReadSensors() {
+    for (unsigned char i = SENSOR_MEM_COUNT - 1; i > 0; i--) {
+        system_voltage_mem[i] = system_voltage_mem[i - 1];
+        batt_voltage_mem[i] = batt_voltage_mem[i - 1];
+        batt_temp_mem[i] = batt_temp_mem[i - 1];
+    }
+    
     // voltage is divided by 4
-    system_voltage = ReadMillivolts(0) * 4;
+    system_voltage_mem[0] = ReadMillivolts(0) * 4;
     
     // 10 mV/degC, 500 mV = 0 degC, multiplied with 4
-    batt_temp = (int)((ReadMillivolts(1) - 4 * 500) / 4);
+    batt_temp_mem[0] = (int)((ReadMillivolts(1) - 4 * 500) / 4);
     
     // voltage is divided by 10
-    batt_voltage = ReadMillivolts(2) * 10;
+    batt_voltage_mem[0] = ReadMillivolts(2) * 10;
 
+    system_voltage = 0;
+    batt_temp = 0;
+    batt_voltage = 0;
+    for (unsigned char i = 0; i < SENSOR_MEM_COUNT; i++) {
+        system_voltage += system_voltage_mem[i];
+        batt_temp += batt_temp_mem[i];
+        batt_voltage += batt_voltage_mem[i];
+    }
+    system_voltage /= SENSOR_MEM_COUNT;
+    batt_temp /= SENSOR_MEM_COUNT;
+    batt_voltage /= SENSOR_MEM_COUNT;
+    
     ReadBattCurrent();
 }
 
@@ -71,7 +105,7 @@ void Calibrate() {
     correction = 3000 - ReadMillivolts(0);
 
     ReadBattCurrent();
-    amp_correction = -batt_current;
+    amp_correction = -batt_current_mem[0];
     
     EEPROM_Write_32Bit(EEPROM_ADDR_CORRECTION_FACTOR, correction);
     EEPROM_Write_32Bit(EEPROM_ADDR_AMP_CORRECTION_FACTOR, amp_correction);
