@@ -101,7 +101,7 @@
         "silk_overlap": "ignore",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
-        "starved_thermal": "error",
+        "starved_thermal": "ignore",
         "text_height": "ignore",
         "text_thickness": "warning",
         "through_hole_pad_without_hole": "error",
@@ -187,6 +187,7 @@
         1.2,
         1.8,
         2.4,
+        3.2,
         4.0
       ],
       "tuning_pattern_settings": {
