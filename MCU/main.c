@@ -144,36 +144,6 @@ void MainLoop() {
                 // no battery
                 LATCbits.LATC6 = sec; // discharge LED
                 LATCbits.LATC7 = 1 - sec; // charge LED
-/*
-                if (PORTAbits.RA4 == 0) {
-                        LATB = 0xFF;
-                        __delay_ms(100);
-                        LATB = 0x00;
-                        __delay_ms(100);
-                        LATB = 0xFF;
-                        __delay_ms(100);
-                        LATB = 0x00;
-                        __delay_ms(10);
-                        Calibrate();
-                }
-                
-                if (cal_countdown > 0 && 
-                        system_voltage >= SYS_VOLTAGE_MIN && 
-                        system_voltage <= SYS_VOLTAGE_MAX) {
-                    cal_countdown--;
-                    if (cal_countdown == 0) {
-                        LATB = 0xFF;
-                        __delay_ms(100);
-                        LATB = 0x00;
-                        __delay_ms(100);
-                        LATB = 0xFF;
-                        __delay_ms(100);
-                        LATB = 0x00;
-                        __delay_ms(10);
-                        Calibrate();
-                    }
-                }
- */
             }
             break;
         }
@@ -370,6 +340,27 @@ void main(void) {
     for (unsigned char i = 0; i < SENSOR_MEM_COUNT; i++)
         ReadSensors();
     
+    // calibration
+    if (PORTAbits.RA4 == 0) {
+        LATB = 0xFF;
+        __delay_ms(100);
+        LATB = 0x00;
+        __delay_ms(100);
+        LATB = 0xFF;
+        __delay_ms(100);
+        LATB = 0x00;
+        __delay_ms(100);
+        LATB = 0xFF;
+        __delay_ms(100);
+        LATB = 0x00;
+
+        __delay_ms(100);
+        
+        Calibrate();
+        while (1) ;
+    }
+    
+
     // enable main loop
     mainloop_enabled = 1;
     
