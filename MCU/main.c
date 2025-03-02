@@ -211,12 +211,11 @@ void MainLoop() {
             else 
                 LATCbits.LATC3 = 0; // heater relay
             
-            LATBbits.LATB5 = 1; // fan
-
             static unsigned char charging = 0;
             if (batt_temp >= CHARGING_MIN_TEMP && batt_temp <= MAX_TEMP) {
                 if (!charging) {
                     LATCbits.LATC7 = 1; // charge LED
+                    LATBbits.LATB5 = 1; // fan
                     LATCbits.LATC4 = 1; // boost converter input relay
                     __delay_ms(250);
                     LATCbits.LATC0 = 1; // charging relay
@@ -225,6 +224,7 @@ void MainLoop() {
                 }
             } else {
                 LATCbits.LATC7 = sec; // charge LED
+                LATBbits.LATB5 = 0; // fan
                 LATCbits.LATC4 = 0; // boost converter input relay
                 LATCbits.LATC0 = 0; // charging relay
                 charging = 0;
@@ -243,10 +243,10 @@ void MainLoop() {
                 {
                     charging = 0;
                     LATCbits.LATC7 = 0; // charge LED
+                    LATBbits.LATB5 = 0; // fan
                     LATCbits.LATC4 = 0; // boost converter input relay
                     LATCbits.LATC0 = 0; // charging relay
                     LATCbits.LATC3 = 0; // heater relay
-                    LATBbits.LATB5 = 0; // fan
                 }
             }
             break;
@@ -303,54 +303,21 @@ void main(void) {
     
     LATCbits.LATC2 = 1; // buck output relay (1 = off)
     __delay_ms(1000);
-
-/*    
-    while (1) {
-        ReadSensors();
-        
-        LATB = 0xFF;
-        __delay_ms(500);
-        LATB = 0;
-        __delay_ms(500);
-
-        long value = system_voltage / 100;
-        unsigned int dig3 = value % 10;
-        value /= 10;
-        unsigned int dig2 = value % 10;
-        value /= 10;
-        unsigned int dig1 = value % 10;
-        
-        LATB = dig1;
-        __delay_ms(1000);
-        LATB = 0;
-        __delay_ms(500);
-        
-        LATB = dig2;
-        __delay_ms(1000);
-        LATB = 0;
-        __delay_ms(500);
-
-        LATB = dig3;
-        __delay_ms(1000);
-        LATB = 0;
-        __delay_ms(500);
-    }
- */
     
     for (unsigned char i = 0; i < SENSOR_MEM_COUNT; i++)
         ReadSensors();
     
     // calibration
     if (PORTAbits.RA4 == 0) {
-        LATB = 0xFF;
+        LATB = 0x1F;
         __delay_ms(100);
         LATB = 0x00;
         __delay_ms(100);
-        LATB = 0xFF;
+        LATB = 0x1F;
         __delay_ms(100);
         LATB = 0x00;
         __delay_ms(100);
-        LATB = 0xFF;
+        LATB = 0x1F;
         __delay_ms(100);
         LATB = 0x00;
 
@@ -359,7 +326,6 @@ void main(void) {
         Calibrate();
         while (1) ;
     }
-    
 
     // enable main loop
     mainloop_enabled = 1;
