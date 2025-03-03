@@ -96,17 +96,37 @@ void Initialize() {
 }
 
 void SetSocLeds() {
-    unsigned char portb = 0;
-    if (soc > 0)
-        portb |= 0x01;
-    if (soc > 20)
-        portb |= 0x02;
-    if (soc > 40)
-        portb |= 0x04;
-    if (soc > 60)
-        portb |= 0x08;
-    if (soc > 80)
-        portb |= 0x10;
+    unsigned char portb = LATB & 0b11100000;
+    if (soc > 0) {
+        if (soc <= 20 && state == STATE_CHARGING)
+            portb |= 0x01 * sec;
+        else
+            portb |= 0x01;
+    }
+    if (soc > 20) {
+        if (soc <= 40 && state == STATE_CHARGING)
+            portb |= 0x02 * sec;
+        else
+            portb |= 0x02;
+    }
+    if (soc > 40) {
+        if (soc <= 60 && state == STATE_CHARGING)
+            portb |= 0x04 * sec;
+        else
+            portb |= 0x04;
+    }
+    if (soc > 60) {
+        if (soc <= 80 && state == STATE_CHARGING)
+            portb |= 0x08 * sec;
+        else
+            portb |= 0x08;
+    }
+    if (soc > 80) {
+        if (state == STATE_CHARGING)
+            portb |= 0x10 * sec;
+        else
+            portb |= 0x10;
+    }
     LATB = portb;
 }
 
@@ -194,6 +214,8 @@ void MainLoop() {
         case STATE_EMPTY: {
             if (!cap_reset_empty) {
                 full_cap = full_cap - rem_cap / 1000;
+                if (full_cap < MIN_CAP)
+                    full_cap = MIN_CAP;
                 rem_cap = 0;
                 cap_reset_empty = 1;
             }
@@ -256,6 +278,8 @@ void MainLoop() {
             if (cap_reset_empty) {
                 cap_reset_empty = 0;
                 full_cap = rem_cap / 1000;
+                if (full_cap < MIN_CAP)
+                    full_cap = MIN_CAP;
             } else
                 rem_cap = full_cap * 1000;
 
@@ -263,7 +287,6 @@ void MainLoop() {
                 SwitchState(STATE_READY);
             break;
         }
-
     }
 }
 
