@@ -96,38 +96,49 @@ void Initialize() {
 }
 
 void SetSocLeds() {
-    unsigned char portb = LATB & 0b11100000;
-    if (soc > 0) {
-        if (soc <= 20 && state == STATE_CHARGING)
-            portb |= 0x01 * sec;
-        else
-            portb |= 0x01;
+    char charging = PORTCbits.RC0 == 1; // charging relay
+    
+    if (soc > 0)
+        LATBbits.LATB0 = 1;
+    else if (soc <= 20 && charging)
+        LATBbits.LATB0 = sec;
+    else
+        LATBbits.LATB0 = 0;
+
+    if (soc > 20)
+        LATBbits.LATB1 = 1;
+    else if (soc <= 40 && charging)
+        LATBbits.LATB1 = sec;
+    else
+        LATBbits.LATB1 = 0;
+
+    if (soc > 40)
+        LATBbits.LATB2 = 1;
+    else if (soc <= 60 && charging)
+        LATBbits.LATB2 = sec;
+    else
+        LATBbits.LATB2 = 0;
+
+    if (soc > 60)
+        LATBbits.LATB3 = 1;
+    else if (soc <= 80 && charging)
+        LATBbits.LATB3 = sec;
+    else
+        LATBbits.LATB3 = 0;
+
+    if (soc > 80)
+        LATBbits.LATB4 = 1;
+    else if (soc <= 100 && charging)
+        LATBbits.LATB4 = sec;
+    else
+        LATBbits.LATB4 = 0;
+}
+
+void FlushSensorCache() {
+    for (unsigned char i = 0; i < SENSOR_MEM_COUNT; i++) {
+        ReadSensors();
+        __delay_ms(10);
     }
-    if (soc > 20) {
-        if (soc <= 40 && state == STATE_CHARGING)
-            portb |= 0x02 * sec;
-        else
-            portb |= 0x02;
-    }
-    if (soc > 40) {
-        if (soc <= 60 && state == STATE_CHARGING)
-            portb |= 0x04 * sec;
-        else
-            portb |= 0x04;
-    }
-    if (soc > 60) {
-        if (soc <= 80 && state == STATE_CHARGING)
-            portb |= 0x08 * sec;
-        else
-            portb |= 0x08;
-    }
-    if (soc > 80) {
-        if (state == STATE_CHARGING)
-            portb |= 0x10 * sec;
-        else
-            portb |= 0x10;
-    }
-    LATB = portb;
 }
 
 void SwitchState(unsigned char new_state) {
@@ -157,6 +168,7 @@ void MainLoop() {
             LATC = 0b00000100;
             LATB = 0;
             if (batt_voltage > BATT_VOLTAGE_MIN) {
+                FlushSensorCache();
                 full_cap = INITIAL_FULL_CAP;
                 rem_cap = GuessRemainingCap();
                 SwitchState(STATE_READY);
@@ -327,8 +339,7 @@ void main(void) {
     LATCbits.LATC2 = 1; // buck output relay (1 = off)
     __delay_ms(1000);
     
-    for (unsigned char i = 0; i < SENSOR_MEM_COUNT; i++)
-        ReadSensors();
+    FlushSensorCache();
     
     // calibration
     if (PORTAbits.RA4 == 0) {
@@ -349,6 +360,8 @@ void main(void) {
         Calibrate();
         while (1) ;
     }
+    
+    __delay_ms(3000);
 
     // enable main loop
     mainloop_enabled = 1;
