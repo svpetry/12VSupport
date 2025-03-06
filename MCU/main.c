@@ -269,6 +269,7 @@ void MainLoop() {
                     __delay_ms(300);
                     LATCbits.LATC4 = 1; // boost converter input relay
                     LATCbits.LATC0 = 1; // charging relay
+                    wait = 8;
                 }
             }
             if (stop_charge)
