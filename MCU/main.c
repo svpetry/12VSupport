@@ -42,8 +42,8 @@
 #include "capacity.h"
 
 // Calculate Timer1 initial value for 0.1-second overflow
-// Timer tick period = (Prescaler * 4) / Fosc = (8 * 4) / 10MHz = 3.2 µs
-// Counts needed for 0.1 s: 0.1 s / 3.2 µs = 31,250 counts
+// Timer tick period = (Prescaler * 4) / Fosc = (8 * 4) / 10MHz = 3.2 Âµs
+// Counts needed for 0.1 s: 0.1 s / 3.2 Âµs = 31,250 counts
 // Initial value = 65,536 - 31,250 = 34,286
 #define TIMER_HI 0x85
 #define TIMER_LO 0xEE
@@ -97,41 +97,32 @@ void Initialize() {
 
 void SetSocLeds() {
     char charging = PORTCbits.RC0 == 1; // charging relay
+    char led1 = 0, led2 = 0, led3 = 0, led4 = 0, led5 = 0;
     
-    if (soc > 0)
-        LATBbits.LATB0 = 1;
-    else if (soc <= 20 && charging)
-        LATBbits.LATB0 = sec;
-    else
-        LATBbits.LATB0 = 0;
+    if (soc > 10) led1 = 1;
+    if (soc > 30) led2 = 1;
+    if (soc > 50) led3 = 1;
+    if (soc > 70) led4 = 1;
+    if (soc > 90) led5 = 1;
 
-    if (soc > 20)
-        LATBbits.LATB1 = 1;
-    else if (soc <= 40 && charging)
-        LATBbits.LATB1 = sec;
-    else
-        LATBbits.LATB1 = 0;
+    if (charging) {
+        if (!led1)
+            led1 = sec;
+        else if (!led2)
+            led2 = sec;
+        else if (!led3)
+            led3 = sec;
+        else if (!led4)
+            led4 = sec;
+        else if (!led5)
+            led5 = sec;
+    }
 
-    if (soc > 40)
-        LATBbits.LATB2 = 1;
-    else if (soc <= 60 && charging)
-        LATBbits.LATB2 = sec;
-    else
-        LATBbits.LATB2 = 0;
-
-    if (soc > 60)
-        LATBbits.LATB3 = 1;
-    else if (soc <= 80 && charging)
-        LATBbits.LATB3 = sec;
-    else
-        LATBbits.LATB3 = 0;
-
-    if (soc > 80)
-        LATBbits.LATB4 = 1;
-    else if (soc <= 100 && charging)
-        LATBbits.LATB4 = sec;
-    else
-        LATBbits.LATB4 = 0;
+    LATBbits.LATB0 = led1;
+    LATBbits.LATB1 = led2;
+    LATBbits.LATB2 = led3;
+    LATBbits.LATB3 = led4;
+    LATBbits.LATB4 = led5;
 }
 
 void FlushSensorCache() {
