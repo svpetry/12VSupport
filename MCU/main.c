@@ -255,24 +255,30 @@ void MainLoop() {
                 charging = 0;
             }
 
-            if (wait == 0) {
-                unsigned char stop_charge = 0;
-                if (system_voltage <= SYS_VOLTAGE_STOP_CHARGE) {
-                    stop_charge = 1;
-                    SwitchState(STATE_READY);
-                } else if (charging && batt_current_abs <= BAT_MIN_CHARGE_CURRENT && batt_voltage >= BAT_VOLTAGE_FULL) {
+            unsigned char stop_charge = 0;
+            if (system_voltage <= SYS_VOLTAGE_STOP_CHARGE) {
+                stop_charge = 1;
+                SwitchState(STATE_READY);
+            } else if (charging && batt_current_abs <= BAT_MIN_CHARGE_CURRENT) {
+                if (batt_voltage >= BAT_VOLTAGE_FULL) {
                     stop_charge = 1;
                     SwitchState(STATE_FULL);
-                }
-                if (stop_charge)
-                {
-                    charging = 0;
-                    LATCbits.LATC7 = 0; // charge LED
-                    LATBbits.LATB5 = 0; // fan
+                } else {
                     LATCbits.LATC4 = 0; // boost converter input relay
                     LATCbits.LATC0 = 0; // charging relay
-                    LATCbits.LATC3 = 0; // heater relay
+                    __delay_ms(300);
+                    LATCbits.LATC4 = 1; // boost converter input relay
+                    LATCbits.LATC0 = 1; // charging relay
                 }
+            }
+            if (stop_charge)
+            {
+                charging = 0;
+                LATCbits.LATC7 = 0; // charge LED
+                LATBbits.LATB5 = 0; // fan
+                LATCbits.LATC4 = 0; // boost converter input relay
+                LATCbits.LATC0 = 0; // charging relay
+                LATCbits.LATC3 = 0; // heater relay
             }
             break;
         }
