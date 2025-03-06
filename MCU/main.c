@@ -237,7 +237,7 @@ void MainLoop() {
                 LATCbits.LATC3 = 0; // heater relay
             
             static unsigned char charging = 0;
-            if (batt_temp >= CHARGING_MIN_TEMP && batt_temp <= MAX_TEMP) {
+            if ((charging || batt_temp >= CHARGING_MIN_TEMP) && batt_temp <= MAX_TEMP) {
                 if (!charging) {
                     LATCbits.LATC7 = 1; // charge LED
                     LATBbits.LATB5 = 1; // fan
@@ -264,10 +264,8 @@ void MainLoop() {
                     stop_charge = 1;
                     SwitchState(STATE_FULL);
                 } else {
-                    LATCbits.LATC4 = 0; // boost converter input relay
                     LATCbits.LATC0 = 0; // charging relay
                     __delay_ms(300);
-                    LATCbits.LATC4 = 1; // boost converter input relay
                     LATCbits.LATC0 = 1; // charging relay
                     wait = 8;
                 }
