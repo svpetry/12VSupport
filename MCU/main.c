@@ -13,11 +13,11 @@
  * RA5: NC
  * RA6: OSC2
  * RA7: OSC1
- * RC0: REL_CHARGE (output)
+ * RC0: REL_CHARGE
  * RC1: NC
- * RC2: REL_BUCK_OUT (output)
- * RC3: REL_HEATER (output)
- * RC4: REL_BOOST_IN (output)
+ * RC2: REL_BUCK_OUT
+ * RC3: REL_HEATER
+ * RC4: REL_BOOST_IN
  * RC5: NC
  * RC6: LED discharge
  * RC7: LED charge
@@ -96,8 +96,8 @@ void Initialize() {
 }
 
 void SetSocLeds() {
-    char charging = PORTCbits.RC0 == 1; // charging relay
-    char led1 = 0, led2 = 0, led3 = 0, led4 = 0, led5 = 0;
+    unsigned char charging = LATCbits.LATC7; // charging led
+    unsigned char led1 = 0, led2 = 0, led3 = 0, led4 = 0, led5 = 0;
     
     if (soc > 10) led1 = 1;
     if (soc > 30) led2 = 1;
@@ -174,7 +174,7 @@ void MainLoop() {
         case STATE_READY: {
             LATCbits.LATC6 = 1; // discharge LED
             LATCbits.LATC7 = 0; // charge LED
-            __delay_ms(50);
+            __delay_ms(20);
             LATCbits.LATC6 = 0; // discharge LED
             
             if (batt_voltage >= BATT_VOLTAGE_MIN) {
@@ -243,8 +243,6 @@ void MainLoop() {
                     LATBbits.LATB5 = 1; // fan
                     LATCbits.LATC4 = 1; // boost converter input relay
                     __delay_ms(250);
-                    LATCbits.LATC0 = 1; // charging relay
-                    wait = 6;
                     charging = 1;
                 }
             } else {
@@ -255,6 +253,12 @@ void MainLoop() {
                 charging = 0;
             }
 
+            if (charging && !LATCbits.LATC0) {
+                LATCbits.LATC0 = 1; // charging relay
+                wait = 6;
+                return;
+            }
+            
             unsigned char stop_charge = 0;
             if (system_voltage <= SYS_VOLTAGE_STOP_CHARGE) {
                 stop_charge = 1;
@@ -264,10 +268,10 @@ void MainLoop() {
                     stop_charge = 1;
                     SwitchState(STATE_FULL);
                 } else {
+                    // workaround for faulty songle relais
                     LATCbits.LATC0 = 0; // charging relay
-                    __delay_ms(300);
-                    LATCbits.LATC0 = 1; // charging relay
-                    wait = 8;
+                    wait = 4;
+                    return;
                 }
             }
             if (stop_charge)
