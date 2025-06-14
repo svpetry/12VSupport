@@ -3,8 +3,8 @@
 #include "eeprom.h"
 
 // Function to write a 32-bit signed value to EEPROM
-void EEPROM_Write_32Bit(unsigned char address, long data) {
-    unsigned char i;
+void EEPROM_Write_32Bit(uint8_t address, long data) {
+    uint8_t i;
     for (i = 0; i < 4; i++) {
         EECON1bits.EEPGD = 0;        // Point to EEPROM
         EECON1bits.CFGS = 0;         // Access EEPROM
@@ -27,8 +27,8 @@ void EEPROM_Write_32Bit(unsigned char address, long data) {
 }
 
 // Function to read a 32-bit signed value from EEPROM
-long EEPROM_Read_32Bit(unsigned char address) {
-    unsigned char i;
+long EEPROM_Read_32Bit(uint8_t address) {
+    uint8_t i;
     long data = 0;
 
     EECON1bits.WREN = 0;

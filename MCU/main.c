@@ -57,12 +57,12 @@
 #define STATE_FULL 5
 #define STATE_OVERHEAT 6
 
-unsigned char mainloop_enabled = 0;
-unsigned char state = STATE_INITIAL ;
-unsigned char cap_reset_empty = 0;
-unsigned char sec = 0;
-unsigned char wait = 0;
-unsigned char cal_countdown = 10;
+uint8_t mainloop_enabled = 0;
+uint8_t state = STATE_INITIAL ;
+uint8_t cap_reset_empty = 0;
+uint8_t sec = 0;
+uint8_t wait = 0;
+uint8_t cal_countdown = 10;
 
 void Initialize() {
     // configure ports
@@ -96,8 +96,8 @@ void Initialize() {
 }
 
 void SetSocLeds() {
-    unsigned char charging = LATCbits.LATC7; // charging led
-    unsigned char led1 = 0, led2 = 0, led3 = 0, led4 = 0, led5 = 0;
+    uint8_t charging = LATCbits.LATC7; // charging led
+    uint8_t led1 = 0, led2 = 0, led3 = 0, led4 = 0, led5 = 0;
     
     if (soc > 10) led1 = 1;
     if (soc > 30) led2 = 1;
@@ -126,13 +126,13 @@ void SetSocLeds() {
 }
 
 void FlushSensorCache() {
-    for (unsigned char i = 0; i < SENSOR_MEM_COUNT; i++) {
+    for (uint8_t i = 0; i < SENSOR_MEM_COUNT; i++) {
         ReadSensors();
         __delay_ms(10);
     }
 }
 
-void SwitchState(unsigned char new_state) {
+void SwitchState(uint8_t new_state) {
     state = new_state;
     wait = 8;
 }
@@ -189,7 +189,7 @@ void MainLoop() {
         }
 
         case STATE_SUPPLYING: {
-            unsigned char stop_supply = 0;
+            uint8_t stop_supply = 0;
             
             LATCbits.LATC6 = 1; // discharge LED
             if (batt_temp <= MAX_TEMP)
@@ -236,7 +236,7 @@ void MainLoop() {
             else 
                 LATCbits.LATC3 = 0; // heater relay
             
-            static unsigned char charging = 0;
+            static uint8_t charging = 0;
             if ((charging || batt_temp >= CHARGING_MIN_TEMP) && batt_temp <= MAX_TEMP) {
                 if (!charging) {
                     LATCbits.LATC7 = 1; // charge LED
@@ -259,7 +259,7 @@ void MainLoop() {
                 return;
             }
             
-            unsigned char stop_charge = 0;
+            uint8_t stop_charge = 0;
             if (system_voltage <= SYS_VOLTAGE_STOP_CHARGE) {
                 stop_charge = 1;
                 SwitchState(STATE_READY);
@@ -314,7 +314,7 @@ void __interrupt(high_priority) HighISR(void) {
         TMR1L = TIMER_LO;
 
         // Increment overflow counter
-        static unsigned char overflow_count = 0;
+        static uint8_t overflow_count = 0;
         overflow_count++;
         if (overflow_count >= 5) {  // 0.1 s * 5 = 0.5 s
             overflow_count = 0;
