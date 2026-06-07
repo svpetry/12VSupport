@@ -355,6 +355,7 @@ void main(void) {
     
     // calibration
     if (PORTAbits.RA4 == 0) {
+        OLED_ShowCalibrating();
         LATB = 0x1F;
         __delay_ms(100);
         LATB = 0x00;

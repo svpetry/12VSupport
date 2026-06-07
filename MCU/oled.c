@@ -118,7 +118,13 @@ static const uint8_t *OLED_GetFont(char c) {
         {0x00, 0x41, 0x7F, 0x41, 0x00}, // I
         {0x3E, 0x41, 0x41, 0x41, 0x3E}, // O
         {0x46, 0x49, 0x49, 0x49, 0x31}, // S
-        {0x1F, 0x20, 0x40, 0x20, 0x1F}  // V
+        {0x1F, 0x20, 0x40, 0x20, 0x1F}, // V
+        {0x7F, 0x49, 0x49, 0x49, 0x36}, // B
+        {0x3E, 0x41, 0x49, 0x49, 0x7A}, // G
+        {0x7F, 0x40, 0x40, 0x40, 0x40}, // L
+        {0x7F, 0x02, 0x04, 0x08, 0x7F}, // N
+        {0x7F, 0x09, 0x19, 0x29, 0x46}, // R
+        {0x01, 0x01, 0x7F, 0x01, 0x01}  // T
     };
 
     if (c == ' ')
@@ -145,6 +151,18 @@ static const uint8_t *OLED_GetFont(char c) {
         return font[19];
     if (c == 'V')
         return font[20];
+    if (c == 'B')
+        return font[21];
+    if (c == 'G')
+        return font[22];
+    if (c == 'L')
+        return font[23];
+    if (c == 'N')
+        return font[24];
+    if (c == 'R')
+        return font[25];
+    if (c == 'T')
+        return font[26];
 
     return font[0];
 }
@@ -307,6 +325,22 @@ void OLED_Update(void) {
     FormatCurrent(row2, &pos, batt_current);
     AppendString(row2, &pos, " S ");
     FormatVoltage(row2, &pos, system_voltage);
+
+    OLED_WriteTextLine(0, row1);
+    OLED_WriteTextLine(2, row2);
+}
+
+void OLED_ShowCalibrating(void) {
+    char row1[OLED_TEXT_CHARS + 1];
+    char row2[OLED_TEXT_CHARS + 1];
+    uint8_t pos = 0;
+
+    if (!oled_available)
+        return;
+
+    ClearText(row1);
+    ClearText(row2);
+    AppendString(row1, &pos, "CALIBRATING...");
 
     OLED_WriteTextLine(0, row1);
     OLED_WriteTextLine(2, row2);
