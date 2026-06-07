@@ -16,8 +16,8 @@
  * RC0: REL_CHARGE
  * RC1: NC
  * RC2: REL_BUCK_OUT
- * RC3: NC
- * RC4: NC
+ * RC3: SCK for I2C OLED display
+ * RC4: SDA for I2C OLED display
  * RC5: REL_BOOST_IN
  * RC6: LED discharge
  * RC7: LED charge
@@ -40,6 +40,7 @@
 #include "eeprom.h"
 #include "sensors.h"
 #include "capacity.h"
+#include "oled.h"
 
 // Calculate Timer1 initial value for 0.1-second overflow
 // Timer tick period = (Prescaler * 4) / Fosc = (8 * 4) / 10MHz = 3.2 µs
@@ -68,8 +69,10 @@ void Initialize() {
     // configure ports
     TRISB = 0x00;
     LATB = 0x00;
-    TRISC = 0x00;
+    TRISC = 0x18; // RC3/RC4 are I2C pins, all other PORTC pins are outputs
     LATC = 0x00;
+    LATCbits.LATC3 = 1;
+    LATCbits.LATC4 = 1;
     LATA = 0x00;
     TRISA = 0b11011111; // RA5 = output, other PORTA pins = input
     
@@ -149,6 +152,8 @@ void MainLoop() {
         CalcSoc();
         SetSocLeds();
     }
+    if (sec)
+        OLED_Update();
     
     if (wait > 0) {
         wait--;
@@ -157,7 +162,12 @@ void MainLoop() {
 
     switch (state) {
         case STATE_INITIAL: {
-            LATC = 0b00000100;
+            LATCbits.LATC0 = 0; // charging relay
+            LATCbits.LATC1 = 0; // NC
+            LATCbits.LATC2 = 1; // buck output relay (1 = off)
+            LATCbits.LATC5 = 0; // boost converter input relay
+            LATCbits.LATC6 = 0; // discharge LED
+            LATCbits.LATC7 = 0; // charge LED
             LATB = 0;
             if (batt_voltage > BATT_VOLTAGE_MIN) {
                 FlushSensorCache();
@@ -330,6 +340,7 @@ void main(void) {
     
     Initialize();
     InitSensors();
+    OLED_Init();
     
     LATCbits.LATC6 = 1;
     LATCbits.LATC7 = 1;
