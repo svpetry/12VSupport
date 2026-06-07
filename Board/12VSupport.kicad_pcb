@@ -8,8 +8,8 @@
 	)
 	(paper "A4")
 	(title_block
-		(date "2025-03-18")
-		(rev "1.3")
+		(date "2026-06-07")
+		(rev "1.4")
 	)
 	(layers
 		(0 "F.Cu" signal)
@@ -44748,7 +44748,7 @@
 			(justify left bottom)
 		)
 	)
-	(gr_text "Rev. 1.3 2025"
+	(gr_text "Rev. 1.4 2025-2026"
 		(at 46.863 73.025 0)
 		(layer "F.SilkS")
 		(uuid "983e6145-187c-4fc1-952c-e31967d10156")
