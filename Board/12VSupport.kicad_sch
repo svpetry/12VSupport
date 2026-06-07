@@ -3609,6 +3609,12 @@
 		(uuid "1fb4b45f-1066-4dae-8c9c-c39725c7c17e")
 	)
 	(junction
+		(at 60.96 132.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3137f7f5-c458-4411-a6c0-cb7a37f1848d")
+	)
+	(junction
 		(at 91.44 153.67)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3619,6 +3625,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "3e0b043c-83de-4415-a69d-5470faae925d")
+	)
+	(junction
+		(at 64.77 114.3)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "439c825c-1abd-4097-ae0f-4e1c620f9ebd")
 	)
 	(junction
 		(at 109.22 38.1)
@@ -3880,6 +3892,16 @@
 	)
 	(wire
 		(pts
+			(xy 60.96 146.05) (xy 60.96 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "16335896-5a05-48f2-899d-a11697408b11")
+	)
+	(wire
+		(pts
 			(xy 90.17 43.18) (xy 90.17 52.07)
 		)
 		(stroke
@@ -3937,6 +3959,16 @@
 			(type default)
 		)
 		(uuid "1ccfa35a-ee67-4b05-a194-91668bcfcb5e")
+	)
+	(wire
+		(pts
+			(xy 64.77 143.51) (xy 64.77 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "21f59a58-8d77-4780-a666-6784271d30a8")
 	)
 	(wire
 		(pts
@@ -4077,6 +4109,16 @@
 			(type default)
 		)
 		(uuid "3fa00d80-6389-4a36-9a2b-f4b794b44b16")
+	)
+	(wire
+		(pts
+			(xy 24.13 146.05) (xy 60.96 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "40c2efb9-5111-44ff-8e34-d291eed158f0")
 	)
 	(wire
 		(pts
@@ -4320,7 +4362,7 @@
 	)
 	(wire
 		(pts
-			(xy 48.26 114.3) (xy 93.98 114.3)
+			(xy 48.26 114.3) (xy 64.77 114.3)
 		)
 		(stroke
 			(width 0)
@@ -4487,6 +4529,16 @@
 			(type default)
 		)
 		(uuid "7ba1f0e8-d832-433b-99c4-5f7d5105a3d6")
+	)
+	(wire
+		(pts
+			(xy 64.77 114.3) (xy 93.98 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c1f63d2-29c3-40cb-b37b-fd7dcdb2d16d")
 	)
 	(wire
 		(pts
@@ -4800,6 +4852,16 @@
 	)
 	(wire
 		(pts
+			(xy 24.13 143.51) (xy 36.83 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9fdd36c5-49b9-45b5-af11-7e08bb87b1ca")
+	)
+	(wire
+		(pts
 			(xy 171.45 109.22) (xy 171.45 140.97)
 		)
 		(stroke
@@ -5047,6 +5109,16 @@
 			(type default)
 		)
 		(uuid "d0f2e41c-6781-471f-8591-b90a40b45525")
+	)
+	(wire
+		(pts
+			(xy 44.45 143.51) (xy 64.77 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d3ab50eb-2f81-4926-b9ae-5d8a29714c40")
 	)
 	(wire
 		(pts
@@ -7943,6 +8015,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:Screw_Terminal_01x02")
+		(at 19.05 146.05 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8de4eebb-ed2c-45cf-8509-c61be944f74c")
+		(property "Reference" "J12"
+			(at 19.05 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SOLAR"
+			(at 19.05 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TerminalBlock:TerminalBlock_Altech_AK300-2_P5.00mm"
+			(at 19.05 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 19.05 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic screw terminal, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 19.05 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "0ea96fae-658f-45d2-9055-31cbdc615e79")
+		)
+		(pin "1"
+			(uuid "b5382e1f-b2cc-42ae-9408-33ab9c1db0e9")
+		)
+		(instances
+			(project "12VSupport"
+				(path "/f0c44745-560b-4dea-806a-2541c74a511b"
+					(reference "J12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+12V")
 		(at 20.32 27.94 0)
 		(unit 1)
@@ -8568,6 +8707,74 @@
 			(project "12VSupport"
 				(path "/f0c44745-560b-4dea-806a-2541c74a511b"
 					(reference "D14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_Schottky")
+		(at 40.64 143.51 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b19ea032-9188-4847-83df-52c1bff4ded3")
+		(property "Reference" "D16"
+			(at 40.9575 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SS54"
+			(at 40.9575 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SMB"
+			(at 40.64 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 40.64 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Schottky diode"
+			(at 40.64 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "ae39d9ab-d77d-4eb5-83bc-beb5f86990c3")
+		)
+		(pin "1"
+			(uuid "416bd59a-eefc-4320-bd83-ac75e0af56f8")
+		)
+		(instances
+			(project "12VSupport"
+				(path "/f0c44745-560b-4dea-806a-2541c74a511b"
+					(reference "D16")
 					(unit 1)
 				)
 			)

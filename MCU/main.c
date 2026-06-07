@@ -10,15 +10,15 @@
  * RA2: BAT_SENSE (AN2)
  * RA3: CURR_SENSE (AN3)
  * RA4: CALIBRATE switch
- * RA5: NC
+ * RA5: REL_HEATER
  * RA6: OSC2
  * RA7: OSC1
  * RC0: REL_CHARGE
  * RC1: NC
  * RC2: REL_BUCK_OUT
- * RC3: REL_HEATER
- * RC4: REL_BOOST_IN
- * RC5: NC
+ * RC3: NC
+ * RC4: NC
+ * RC5: REL_BOOST_IN
  * RC6: LED discharge
  * RC7: LED charge
  * RE3: VPP
@@ -70,7 +70,8 @@ void Initialize() {
     LATB = 0x00;
     TRISC = 0x00;
     LATC = 0x00;
-    TRISA = 0xFF; // PORTA = input
+    LATA = 0x00;
+    TRISA = 0b11011111; // RA5 = output, other PORTA pins = input
     
     // Configure ADC
     ADCON0 = 0b00000001; // Enable ADC and select channel 0 (AN0)
@@ -232,23 +233,23 @@ void MainLoop() {
 
         case STATE_CHARGING: {
             if (batt_temp < HEATER_TEMP)
-                LATCbits.LATC3 = 1; // heater relay
+                LATAbits.LATA5 = 1; // heater relay
             else 
-                LATCbits.LATC3 = 0; // heater relay
+                LATAbits.LATA5 = 0; // heater relay
             
             static uint8_t charging = 0;
             if ((charging || batt_temp >= CHARGING_MIN_TEMP) && batt_temp <= MAX_TEMP) {
                 if (!charging) {
                     LATCbits.LATC7 = 1; // charge LED
                     LATBbits.LATB5 = 1; // fan
-                    LATCbits.LATC4 = 1; // boost converter input relay
+                    LATCbits.LATC5 = 1; // boost converter input relay
                     __delay_ms(250);
                     charging = 1;
                 }
             } else {
                 LATCbits.LATC7 = sec; // charge LED
                 LATBbits.LATB5 = 0; // fan
-                LATCbits.LATC4 = 0; // boost converter input relay
+                LATCbits.LATC5 = 0; // boost converter input relay
                 LATCbits.LATC0 = 0; // charging relay
                 charging = 0;
             }
@@ -279,9 +280,9 @@ void MainLoop() {
                 charging = 0;
                 LATCbits.LATC7 = 0; // charge LED
                 LATBbits.LATB5 = 0; // fan
-                LATCbits.LATC4 = 0; // boost converter input relay
+                LATCbits.LATC5 = 0; // boost converter input relay
                 LATCbits.LATC0 = 0; // charging relay
-                LATCbits.LATC3 = 0; // heater relay
+                LATAbits.LATA5 = 0; // heater relay
             }
             break;
         }
