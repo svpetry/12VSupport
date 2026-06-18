@@ -263,6 +263,23 @@ static void FormatCurrent(char *text, uint8_t *pos, long milliamps) {
     AppendChar(text, pos, 'A');
 }
 
+static void FormatTemp(char *text, uint8_t *pos, int deci_deg_c) {
+    unsigned long abs_value;
+
+    AppendChar(text, pos, 'T');
+    if (deci_deg_c < 0) {
+        AppendChar(text, pos, '-');
+        abs_value = (unsigned long)(-deci_deg_c);
+    } else {
+        abs_value = (unsigned long)deci_deg_c;
+    }
+
+    AppendUnsigned(text, pos, abs_value / 10);
+    AppendChar(text, pos, '.');
+    AppendChar(text, pos, (char)('0' + (abs_value % 10)));
+    AppendChar(text, pos, 'C');
+}
+
 static void ClearText(char *text) {
     for (uint8_t i = 0; i <= OLED_TEXT_CHARS; i++)
         text[i] = '\0';
@@ -305,6 +322,38 @@ void OLED_Init(void) {
         OLED_Clear();
 }
 
+/*
+ * ===========================================================================
+ * OLED DISPLAY LAYOUT
+ * ===========================================================================
+ * 128x32 monochrome OLED, organized as 4 horizontal "pages" of 8 pixels.
+ * Text is drawn in a 5x7 font (6-pixel columns including spacing); each row
+ * holds at most OLED_TEXT_CHARS = 21 characters. Only pages 0 and 2 carry
+ * text; pages 1 and 3 are left blank so the two text rows are double-spaced.
+ *
+ * ROW 1  (page 0, top)    - battery pack status:
+ *     <batt_voltage> SOC <soc>% T<batt_temp>
+ *     e.g.  "28.8V SOC 98% T25.3C"        (typical)
+ *           "21.0V SOC 100% T-5.0C"       (worst realistic case, 21 chars)
+ *
+ * ROW 2  (page 2, bottom) - electrical / system status:
+ *     I <batt_current> S <system_voltage>
+ *     e.g.  "I +12.34A S 13.8V"           (charging)
+ *           "I -2.50A S 11.9V"            (discharging)
+ *
+ * Per-field format (produced by the Format* helpers below):
+ *     batt_voltage    24V pack voltage,   volts, 1 decimal   -> "28.8V"
+ *     system_voltage  12V rail voltage,    volts, 1 decimal   -> "13.8V"
+ *     soc             state of charge,     0..100 percent     -> "SOC 98%"
+ *     batt_current    battery current,     amps,  2 decimals  -> "I +12.34A"
+ *     batt_temp       battery temperature, deg C, 1 decimal   -> "T25.3C"
+ *
+ * Note: the temperature label "T" is written without a trailing space
+ * (unlike "SOC ", "I " and "S ") so that row 1 fits within 21 columns even
+ * at SOC 100 %. Only the practically impossible combination of 100 % SOC
+ * and a battery temperature below -10.0 degC would exceed the row width.
+ * ===========================================================================
+ */
 void OLED_Update(void) {
     char row1[OLED_TEXT_CHARS + 1];
     char row2[OLED_TEXT_CHARS + 1];
@@ -320,6 +369,8 @@ void OLED_Update(void) {
     FormatVoltage(row1, &pos, batt_voltage);
     AppendString(row1, &pos, " ");
     FormatSoc(row1, &pos, soc);
+    AppendString(row1, &pos, " ");
+    FormatTemp(row1, &pos, batt_temp);
 
     pos = 0;
     FormatCurrent(row2, &pos, batt_current);

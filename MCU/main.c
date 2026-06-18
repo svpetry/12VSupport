@@ -56,7 +56,6 @@
 #define STATE_EMPTY 3
 #define STATE_CHARGING 4
 #define STATE_FULL 5
-#define STATE_OVERHEAT 6
 
 uint8_t mainloop_enabled = 0;
 uint8_t state = STATE_INITIAL ;

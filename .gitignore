@@ -81,3 +81,4 @@ nbproject/configurations.xml
 .DS_Store
 Thumbs.db
 Board/~*.lck
+MCU/.vscode/settings.json

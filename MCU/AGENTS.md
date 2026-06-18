@@ -22,7 +22,6 @@ Toolchain/target are in `nbproject/configurations.xml` (XC8 v3.00, PIC18F2480). 
 
 - **Runtime is interrupt-driven.** After setup, `main()` just spins in `while(1);`. `MainLoop()` and the whole state machine run from the high-priority Timer1 ISR (~every 0.5s, gated by the `sec` flag) — so that code path must stay bounded.
 - **EEPROM writes disable interrupts and block.** `EEPROM_Write_32Bit()` clears GIE for the unlock/write sequence. They currently only happen in the pre-loop calibration path; don't add them into the state machine (which is ISR context).
-- **`STATE_OVERHEAT` is a dead constant** — defined in `main.c` but not in the state-machine `switch`. Over-temperature is handled inline via `batt_temp > MAX_TEMP` checks in `STATE_SUPPLYING` / `STATE_CHARGING`.
 - **Calibration requires external setup.** Triggered by `RA4` low at startup; it expects exactly 12V on the supply line, writes correction factors to EEPROM, then halts forever (needs a reset).
 - **Chemistry is a compile-time switch.** `constants.h` selects the pack via `#define LIFEPO` or `#define LIION` — keep exactly one active; the voltage→SOC tables and thresholds differ per chemistry.
 - **Safety-sensitive.** This switches real power hardware on a 24V battery; wrong charge/temperature thresholds or relay on/off polarity can overcharge or overheat the pack. `constants.h` thresholds and relay polarity are the load-bearing values to get right.
